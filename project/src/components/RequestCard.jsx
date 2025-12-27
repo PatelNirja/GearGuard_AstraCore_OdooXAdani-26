@@ -9,19 +9,32 @@ const priorityColors = {
 
 const RequestCard = ({ request, onDragStart, onUpdate }) => {
   const isOverdue = new Date(request.scheduledDate) < new Date() && request.stage !== 'Repaired' && request.stage !== 'Scrap';
+  const isDraggable = !!onDragStart;
 
   return (
     <div
-      draggable
-      onDragStart={() => onDragStart(request)}
-      className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-move border border-slate-200"
+      draggable={isDraggable}
+      onDragStart={isDraggable ? () => onDragStart(request) : undefined}
+      className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border-l-4 ${
+        isDraggable ? 'cursor-move' : 'cursor-default'
+      } ${
+        isOverdue ? 'border-l-red-500 border-r border-t border-b border-slate-200' : 'border border-slate-200'
+      }`}
     >
-      <div className="flex items-start justify-between mb-2">
-        <h4 className="font-semibold text-slate-800 text-sm flex-1">{request.subject}</h4>
-        {isOverdue && (
-          <AlertCircle className="text-red-500 flex-shrink-0" size={16} />
-        )}
-      </div>
+      {isOverdue && (
+        <div className="bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-t-lg">
+          OVERDUE
+        </div>
+      )}
+      <div className="p-4">
+        <div className="flex items-start justify-between mb-2">
+          <h4 className={`font-semibold text-sm flex-1 ${isOverdue ? 'text-red-700' : 'text-slate-800'}`}>
+            {request.subject}
+          </h4>
+          {isOverdue && (
+            <AlertCircle className="text-red-500 flex-shrink-0" size={16} />
+          )}
+        </div>
 
       <p className="text-xs text-slate-600 mb-3 line-clamp-2">{request.description}</p>
 
@@ -62,6 +75,7 @@ const RequestCard = ({ request, onDragStart, onUpdate }) => {
             {request.duration}h
           </span>
         )}
+      </div>
       </div>
     </div>
   );

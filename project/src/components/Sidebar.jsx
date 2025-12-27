@@ -1,12 +1,21 @@
-import { LayoutGrid, Calendar, Package, Users } from 'lucide-react';
+import { LayoutGrid, Calendar, Package, Users, BarChart3 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Sidebar = ({ activeView, setActiveView }) => {
+  const { isManager, isTechnician, isEmployee } = useAuth();
+  
   const menuItems = [
-    { id: 'kanban', label: 'Kanban Board', icon: LayoutGrid },
-    { id: 'calendar', label: 'Calendar', icon: Calendar },
-    { id: 'equipment', label: 'Equipment', icon: Package },
-    { id: 'teams', label: 'Teams', icon: Users }
-  ];
+    { id: 'kanban', label: 'Kanban Board', icon: LayoutGrid, roles: ['Employee', 'Manager', 'Technician'] },
+    { id: 'calendar', label: 'Calendar', icon: Calendar, roles: ['Employee', 'Manager', 'Technician'] },
+    { id: 'equipment', label: 'Equipment', icon: Package, roles: ['Employee', 'Manager', 'Technician'] },
+    { id: 'teams', label: 'Teams', icon: Users, roles: ['Manager'] },
+    { id: 'reports', label: 'Reports', icon: BarChart3, roles: ['Manager'] }
+  ].filter(item => {
+    if (isManager) return true;
+    if (isTechnician) return item.roles.includes('Technician');
+    if (isEmployee) return item.roles.includes('Employee');
+    return false;
+  });
 
   return (
     <div className="w-64 bg-white shadow-lg border-r border-slate-200">

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Plus, Users, Mail, Phone, Edit, Trash2, X, UserPlus } from 'lucide-react';
 import { api } from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 
 const TeamManager = ({ teams, onUpdate }) => {
+  const { isManager } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [formData, setFormData] = useState({

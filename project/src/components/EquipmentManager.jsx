@@ -1,13 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Package, Wrench, MapPin, Calendar, Edit, Trash2, X } from 'lucide-react';
 import { api } from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 
 const EquipmentManager = ({ equipment, teams, onUpdate }) => {
+  const { isManager } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState(null);
   const [equipmentRequests, setEquipmentRequests] = useState([]);
   const [requestCount, setRequestCount] = useState(0);
   const [showRequestsModal, setShowRequestsModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterDepartment, setFilterDepartment] = useState('');
+  const [filterEmployee, setFilterEmployee] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [requestCounts, setRequestCounts] = useState({});
   const [formData, setFormData] = useState({
     name: '',
     serialNumber: '',
@@ -96,11 +103,56 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
     }
   };
 
+  // Load request counts for all equipment
+  useEffect(() => {
+    const loadRequestCounts = async () => {
+      try {
+        const counts = await Promise.all(
+          equipment.map(async (eq) => {
+            try {
+              const countData = await api.equipment.getRequestsCount(eq._id);
+              return { id: eq._id, count: countData.count };
+            } catch {
+              return { id: eq._id, count: 0 };
+            }
+          })
+        );
+        const countsMap = {};
+        counts.forEach(({ id, count }) => {
+          countsMap[id] = count;
+        });
+        setRequestCounts(countsMap);
+      } catch (error) {
+        console.error('Error loading request counts:', error);
+      }
+    };
+    if (equipment.length > 0) {
+      loadRequestCounts();
+    }
+  }, [equipment]);
+
   const statusColors = {
     'Active': 'bg-green-100 text-green-800',
     'Under Maintenance': 'bg-yellow-100 text-yellow-800',
     'Scrapped': 'bg-red-100 text-red-800'
   };
+
+  // Get unique departments and employees for filters
+  const departments = [...new Set(equipment.map(eq => eq.department))].sort();
+  const employees = [...new Set(equipment.map(eq => eq.assignedTo))].sort();
+  const categories = [...new Set(equipment.map(eq => eq.category))].sort();
+
+  // Filter equipment
+  const filteredEquipment = equipment.filter(eq => {
+    const matchesSearch = !searchTerm || 
+      eq.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      eq.serialNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      eq.location.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDepartment = !filterDepartment || eq.department === filterDepartment;
+    const matchesEmployee = !filterEmployee || eq.assignedTo === filterEmployee;
+    const matchesCategory = !filterCategory || eq.category === filterCategory;
+    return matchesSearch && matchesDepartment && matchesEmployee && matchesCategory;
+  });
 
   return (
     <div className="h-full flex flex-col">
@@ -109,20 +161,95 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
           <h2 className="text-2xl font-bold text-slate-800">Equipment Management</h2>
           <p className="text-slate-600 mt-1">Manage your company assets</p>
         </div>
-        <button
-          onClick={() => {
-            resetForm();
-            setShowModal(true);
-          }}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
-        >
-          <Plus size={20} />
-          Add Equipment
-        </button>
+        {isManager && (
+          <button
+            onClick={() => {
+              resetForm();
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
+          >
+            <Plus size={20} />
+            Add Equipment
+          </button>
+        )}
+      </div>
+
+      {/* Search and Filter Section */}
+      <div className="bg-white rounded-xl shadow-md border border-slate-200 p-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Search</label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name, serial, location..."
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Department</label>
+            <select
+              value={filterDepartment}
+              onChange={(e) => setFilterDepartment(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">All Departments</option>
+              {departments.map(dept => (
+                <option key={dept} value={dept}>{dept}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Employee</label>
+            <select
+              value={filterEmployee}
+              onChange={(e) => setFilterEmployee(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">All Employees</option>
+              {employees.map(emp => (
+                <option key={emp} value={emp}>{emp}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Category</label>
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">All Categories</option>
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        {(searchTerm || filterDepartment || filterEmployee || filterCategory) && (
+          <div className="mt-3 flex items-center gap-2">
+            <span className="text-sm text-slate-600">
+              Showing {filteredEquipment.length} of {equipment.length} equipment
+            </span>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setFilterDepartment('');
+                setFilterEmployee('');
+                setFilterCategory('');
+              }}
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-auto">
-        {equipment.map((eq) => (
+        {filteredEquipment.map((eq) => (
           <div
             key={eq._id}
             className="bg-white rounded-xl shadow-md border border-slate-200 p-6 hover:shadow-lg transition-all duration-200"
@@ -166,28 +293,35 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
 
             <button
               onClick={() => handleViewRequests(eq)}
-              className="w-full mb-3 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors font-medium"
+              className="w-full mb-3 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors font-medium relative"
             >
               <Wrench size={16} />
               Maintenance Requests
+              {requestCounts[eq._id] > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                  {requestCounts[eq._id]}
+                </span>
+              )}
             </button>
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleEdit(eq)}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                <Edit size={16} />
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(eq._id)}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
-              >
-                <Trash2 size={16} />
-                Delete
-              </button>
-            </div>
+            {isManager && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEdit(eq)}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  <Edit size={16} />
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(eq._id)}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 size={16} />
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>

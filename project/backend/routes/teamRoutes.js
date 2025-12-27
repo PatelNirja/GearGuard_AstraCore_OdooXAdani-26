@@ -1,7 +1,11 @@
 import express from 'express';
 import Team from '../models/Team.js';
+import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
+
+// All routes require authentication
+router.use(authenticate);
 
 router.get('/', async (req, res) => {
   try {
@@ -24,7 +28,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', authorize('Manager'), async (req, res) => {
   try {
     const team = new Team(req.body);
     const newTeam = await team.save();
@@ -34,7 +38,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', authorize('Manager'), async (req, res) => {
   try {
     const team = await Team.findByIdAndUpdate(
       req.params.id,
@@ -50,7 +54,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authorize('Manager'), async (req, res) => {
   try {
     const team = await Team.findByIdAndDelete(req.params.id);
     if (!team) {

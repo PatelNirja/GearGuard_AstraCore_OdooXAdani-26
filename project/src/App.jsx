@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Settings, Wrench, Calendar, LayoutGrid } from 'lucide-react';
+import { Settings, Wrench, Calendar, LayoutGrid, LogOut } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import EquipmentManager from './components/EquipmentManager';
 import TeamManager from './components/TeamManager';
 import KanbanBoard from './components/KanbanBoard';
 import CalendarView from './components/CalendarView';
+import ReportsView from './components/ReportsView';
+import Login from './components/Login';
+import Register from './components/Register';
+import { useAuth } from './context/AuthContext';
 import { api } from './utils/api';
 
 function App() {
+  const { user, loading: authLoading, logout, isAuthenticated } = useAuth();
+  const [showRegister, setShowRegister] = useState(false);
   const [activeView, setActiveView] = useState('kanban');
   const [teams, setTeams] = useState([]);
   const [equipment, setEquipment] = useState([]);
@@ -15,8 +21,10 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (isAuthenticated) {
+      loadData();
+    }
+  }, [isAuthenticated]);
 
   const loadData = async () => {
     try {
@@ -31,10 +39,30 @@ function App() {
       setRequests(requestsData);
     } catch (error) {
       console.error('Error loading data:', error);
+      if (error.message.includes('token') || error.message.includes('authorization')) {
+        logout();
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  // Show login/register if not authenticated
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return showRegister ? (
+      <Register onSwitchToLogin={() => setShowRegister(false)} />
+    ) : (
+      <Login onSwitchToRegister={() => setShowRegister(true)} />
+    );
+  }
 
   const renderView = () => {
     if (loading) {
@@ -54,6 +82,8 @@ function App() {
         return <EquipmentManager equipment={equipment} teams={teams} onUpdate={loadData} />;
       case 'teams':
         return <TeamManager teams={teams} onUpdate={loadData} />;
+      case 'reports':
+        return <ReportsView requests={requests} equipment={equipment} teams={teams} />;
       default:
         return <KanbanBoard requests={requests} equipment={equipment} teams={teams} onUpdate={loadData} />;
     }
@@ -75,11 +105,19 @@ function App() {
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <p className="text-sm text-slate-500">Welcome back</p>
-                <p className="font-semibold text-slate-700">Admin User</p>
+                <p className="font-semibold text-slate-700">{user?.name}</p>
+                <p className="text-xs text-slate-500">{user?.role}</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold shadow-md">
-                A
+                {user?.name?.charAt(0).toUpperCase() || 'U'}
               </div>
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                title="Logout"
+              >
+                <LogOut size={20} />
+              </button>
             </div>
           </div>
         </header>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import RequestModal from './RequestModal';
 
-const CalendarView = ({ requests, equipment, teams, onUpdate }) => {
+const CalendarView = ({ requests, equipment, teams, onUpdate, initialDate }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -138,6 +138,8 @@ const CalendarView = ({ requests, equipment, teams, onUpdate }) => {
         <RequestModal
           equipment={equipment}
           teams={teams}
+          initialDate={selectedDate}
+          initialType="Preventive"
           onClose={() => {
             setShowModal(false);
             setSelectedDate(null);

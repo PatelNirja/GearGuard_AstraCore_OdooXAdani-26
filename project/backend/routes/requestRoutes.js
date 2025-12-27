@@ -1,8 +1,12 @@
 import express from 'express';
 import MaintenanceRequest from '../models/MaintenanceRequest.js';
 import Equipment from '../models/Equipment.js';
+import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
+
+// All routes require authentication
+router.use(authenticate);
 
 router.get('/', async (req, res) => {
   try {
@@ -42,6 +46,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Anyone can create a request
 router.post('/', async (req, res) => {
   try {
     const equipment = await Equipment.findById(req.body.equipment).populate('maintenanceTeam');
@@ -53,8 +58,19 @@ router.post('/', async (req, res) => {
     const requestData = {
       ...req.body,
       equipmentCategory: equipment.category,
-      maintenanceTeam: equipment.maintenanceTeam._id
+      // Use maintenanceTeam from request body if provided, otherwise use equipment's team
+      maintenanceTeam: req.body.maintenanceTeam || equipment.maintenanceTeam._id,
+      createdBy: req.user.name || req.user.email
     };
+
+    // Auto-assign default technician if not already assigned
+    if (!req.body.assignedTo?.name && equipment.defaultTechnician?.name) {
+      requestData.assignedTo = {
+        name: equipment.defaultTechnician.name,
+        email: equipment.defaultTechnician.email || '',
+        avatar: equipment.defaultTechnician.avatar || ''
+      };
+    }
 
     const request = new MaintenanceRequest(requestData);
     const newRequest = await request.save();
@@ -69,18 +85,46 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    if (req.body.stage === 'Scrap' && req.body.equipment) {
+    const request = await MaintenanceRequest.findById(req.params.id).populate('equipment');
+    
+    if (!request) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+
+    if (req.body.stage === 'Scrap') {
+      // Mark equipment as scrapped with detailed notes
+      const scrapNote = `Equipment scrapped on ${new Date().toISOString()} due to maintenance request: ${request.subject || 'N/A'}. ${req.body.notes || ''}`;
       await Equipment.findByIdAndUpdate(
-        req.body.equipment,
-        { status: 'Scrapped', notes: 'Equipment scrapped due to maintenance request' }
+        request.equipment._id,
+        { 
+          status: 'Scrapped',
+          notes: scrapNote
+        }
       );
+      // Add note to request
+      req.body.notes = scrapNote;
     }
 
     if (req.body.stage === 'Repaired' && !req.body.completedDate) {
       req.body.completedDate = new Date();
+      // Update equipment status back to Active if it was under maintenance
+      if (request.equipment && request.equipment.status === 'Under Maintenance') {
+        await Equipment.findByIdAndUpdate(
+          request.equipment._id,
+          { status: 'Active' }
+        );
+      }
     }
 
-    const request = await MaintenanceRequest.findByIdAndUpdate(
+    if (req.body.stage === 'In Progress' && request.equipment && request.equipment.status === 'Active') {
+      // Mark equipment as under maintenance when work starts
+      await Equipment.findByIdAndUpdate(
+        request.equipment._id,
+        { status: 'Under Maintenance' }
+      );
+    }
+
+    const updatedRequest = await MaintenanceRequest.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
@@ -88,10 +132,7 @@ router.put('/:id', async (req, res) => {
       .populate('equipment')
       .populate('maintenanceTeam');
 
-    if (!request) {
-      return res.status(404).json({ message: 'Request not found' });
-    }
-    res.json(request);
+    res.json(updatedRequest);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

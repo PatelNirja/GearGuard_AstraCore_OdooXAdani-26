@@ -1,9 +1,14 @@
 import express from 'express';
 import Equipment from '../models/Equipment.js';
 import MaintenanceRequest from '../models/MaintenanceRequest.js';
+import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
+// All routes require authentication
+router.use(authenticate);
+
+// GET routes - accessible to all authenticated users
 router.get('/', async (req, res) => {
   try {
     const equipment = await Equipment.find()
@@ -52,7 +57,7 @@ router.get('/:id/requests/count', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', authorize('Manager'), async (req, res) => {
   try {
     const equipment = new Equipment(req.body);
     const newEquipment = await equipment.save();
@@ -64,7 +69,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', authorize('Manager'), async (req, res) => {
   try {
     const equipment = await Equipment.findByIdAndUpdate(
       req.params.id,
@@ -80,7 +85,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authorize('Manager'), async (req, res) => {
   try {
     const equipment = await Equipment.findByIdAndDelete(req.params.id);
     if (!equipment) {

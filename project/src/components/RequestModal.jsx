@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { api } from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 
-const RequestModal = ({ equipment, teams, editRequest, onClose, onUpdate }) => {
+const RequestModal = ({ equipment, teams, editRequest, onClose, onUpdate, initialDate, initialType }) => {
+  const { user, isManager, isTechnician } = useAuth();
+  
   const [formData, setFormData] = useState({
     subject: '',
     description: '',
     equipment: '',
-    requestType: 'Corrective',
+    maintenanceTeam: '',
+    requestType: initialType || 'Corrective',
     priority: 'Medium',
-    scheduledDate: new Date().toISOString().split('T')[0],
+    scheduledDate: initialDate ? new Date(initialDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     assignedTo: { name: '', email: '', avatar: '' },
-    createdBy: 'Admin User',
+    createdBy: user?.name || user?.email || 'User',
     duration: 0
   });
 
@@ -22,31 +26,82 @@ const RequestModal = ({ equipment, teams, editRequest, onClose, onUpdate }) => {
       setFormData({
         ...editRequest,
         equipment: editRequest.equipment._id,
-        scheduledDate: new Date(editRequest.scheduledDate).toISOString().split('T')[0]
+        maintenanceTeam: editRequest.maintenanceTeam?._id || editRequest.maintenanceTeam || '',
+        scheduledDate: new Date(editRequest.scheduledDate).toISOString().split('T')[0],
+        createdBy: user?.name || user?.email || editRequest.createdBy
       });
       setSelectedEquipment(editRequest.equipment);
+    } else if (initialDate) {
+      // When opening from calendar, set the date and type
+      const dateStr = new Date(initialDate).toISOString().split('T')[0];
+      setFormData(prev => ({
+        ...prev,
+        scheduledDate: dateStr,
+        requestType: initialType || 'Preventive',
+        createdBy: user?.name || user?.email || prev.createdBy
+      }));
+    } else {
+      // Update createdBy when user is available
+      if (user) {
+        setFormData(prev => ({
+          ...prev,
+          createdBy: user.name || user.email || prev.createdBy
+        }));
+      }
     }
-  }, [editRequest]);
+  }, [editRequest, initialDate, initialType, user]);
 
-  const handleEquipmentChange = (equipmentId) => {
+  const handleEquipmentChange = async (equipmentId) => {
     const selected = equipment.find(e => e._id === equipmentId);
     setSelectedEquipment(selected);
-    setFormData({ ...formData, equipment: equipmentId });
+    
+    if (selected) {
+      // Auto-fill equipment category and maintenance team
+      const updatedFormData = {
+        ...formData,
+        equipment: equipmentId,
+        equipmentCategory: selected.category
+      };
+      
+      // Auto-fill maintenance team if available
+      if (selected.maintenanceTeam) {
+        updatedFormData.maintenanceTeam = selected.maintenanceTeam._id || selected.maintenanceTeam;
+        
+        // Auto-assign default technician if available
+        if (selected.defaultTechnician && selected.defaultTechnician.name) {
+          updatedFormData.assignedTo = {
+            name: selected.defaultTechnician.name,
+            email: selected.defaultTechnician.email || '',
+            avatar: selected.defaultTechnician.avatar || ''
+          };
+        }
+      }
+      
+      setFormData(updatedFormData);
+    } else {
+      setFormData({ ...formData, equipment: equipmentId });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Ensure createdBy is set with current user
+      const submitData = {
+        ...formData,
+        createdBy: user?.name || user?.email || formData.createdBy || 'User'
+      };
+      
       if (editRequest) {
-        await api.requests.update(editRequest._id, formData);
+        await api.requests.update(editRequest._id, submitData);
       } else {
-        await api.requests.create(formData);
+        await api.requests.create(submitData);
       }
       onUpdate();
       onClose();
     } catch (error) {
       console.error('Error saving request:', error);
-      alert('Failed to save request');
+      alert(error.message || 'Failed to save request. Please check your connection and try again.');
     }
   };
 
@@ -122,6 +177,27 @@ const RequestModal = ({ equipment, teams, editRequest, onClose, onUpdate }) => {
               <p className="text-sm font-semibold text-blue-900 mb-1">Auto-filled Information</p>
               <p className="text-sm text-blue-700">Category: {selectedEquipment.category}</p>
               <p className="text-sm text-blue-700">Team: {selectedEquipment.maintenanceTeam?.name || 'N/A'}</p>
+              {selectedEquipment.defaultTechnician?.name && (
+                <p className="text-sm text-blue-700">Default Technician: {selectedEquipment.defaultTechnician.name}</p>
+              )}
+            </div>
+          )}
+
+          {formData.maintenanceTeam && (
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">Maintenance Team</label>
+              <select
+                value={formData.maintenanceTeam}
+                onChange={(e) => setFormData({ ...formData, maintenanceTeam: e.target.value })}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Select Team</option>
+                {teams.map((team) => (
+                  <option key={team._id} value={team._id}>
+                    {team.name}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
@@ -154,14 +230,52 @@ const RequestModal = ({ equipment, teams, editRequest, onClose, onUpdate }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Assigned Technician Name</label>
-              <input
-                type="text"
-                value={formData.assignedTo.name}
-                onChange={(e) => setFormData({ ...formData, assignedTo: { ...formData.assignedTo, name: e.target.value } })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Technician name"
-              />
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                {isManager ? 'Assigned Technician' : isTechnician ? 'Assigned To' : 'Assigned Technician'}
+              </label>
+              {isManager && formData.maintenanceTeam ? (
+                <select
+                  value={formData.assignedTo.name}
+                  onChange={(e) => {
+                    const selectedMember = teams
+                      .find(t => t._id === formData.maintenanceTeam)
+                      ?.members.find(m => m.name === e.target.value);
+                    setFormData({
+                      ...formData,
+                      assignedTo: {
+                        name: e.target.value,
+                        email: selectedMember?.email || '',
+                        avatar: selectedMember?.avatar || ''
+                      }
+                    });
+                  }}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select Team Member</option>
+                  {teams
+                    .find(t => t._id === formData.maintenanceTeam)
+                    ?.members.map((member, idx) => (
+                      <option key={idx} value={member.name}>
+                        {member.name} {member.email ? `(${member.email})` : ''}
+                      </option>
+                    ))}
+                </select>
+              ) : isTechnician ? (
+                <input
+                  type="text"
+                  value={formData.assignedTo.name || user?.name}
+                  readOnly
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-slate-50"
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={formData.assignedTo.name}
+                  onChange={(e) => setFormData({ ...formData, assignedTo: { ...formData.assignedTo, name: e.target.value } })}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Technician name"
+                />
+              )}
             </div>
 
             <div>
