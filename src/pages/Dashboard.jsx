@@ -71,26 +71,26 @@ export default function Dashboard() {
   return (
     <div className="h-full flex flex-col">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Dashboard</h2>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">Overview of your maintenance operations</p>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1">Dashboard</h2>
+        <p className="text-sm text-slate-600 dark:text-slate-400">Overview of your maintenance operations</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {statCards.map((stat) => {
           const Icon = stat.icon;
           return (
             <Link
               key={stat.label}
               to={stat.link}
-              className="bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-800 p-6 hover:shadow-lg transition-all duration-200"
+              className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-5 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200"
             >
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">{stat.label}</p>
-                  <p className="text-3xl font-bold text-slate-800 dark:text-slate-100 mt-2">{stat.value}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium uppercase tracking-wide mb-2">{stat.label}</p>
+                  <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{stat.value}</p>
                 </div>
-                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
-                  <Icon className="text-white" size={24} />
+                <div className={`w-11 h-11 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center flex-shrink-0 ml-3`}>
+                  <Icon className="text-white" size={20} />
                 </div>
               </div>
             </Link>
@@ -99,27 +99,30 @@ export default function Dashboard() {
       </div>
 
       {authStore.getUser()?.role?.toUpperCase() === 'TECHNICIAN' && (
-        <div className="mt-8 bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-800 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">My Active Requests</h3>
-            <Link to="/requests" className="text-sm text-blue-600 hover:text-blue-700">View all</Link>
+        <div className="mt-8 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-0.5">My Active Requests</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Tasks assigned to you</p>
+            </div>
+            <Link to="/requests" className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">View all</Link>
           </div>
           {myRequests.length === 0 ? (
-            <p className="text-sm text-slate-600 dark:text-slate-400">No active assigned requests.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">No active assigned requests.</p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {myRequests.slice(0, 5).map((r) => (
-                <div key={r._id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-950 rounded-lg p-3 border border-slate-200 dark:border-slate-800">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">
+                <div key={r._id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-950 rounded-lg p-3.5 border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
                       {(r.assignedTo?.name || 'T').charAt(0)}
                     </div>
-                    <div>
-                      <div className="text-sm font-semibold text-slate-800 dark:text-slate-100">{r.subject}</div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400">{new Date(r.scheduledDate).toLocaleDateString()}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{r.subject}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{new Date(r.scheduledDate).toLocaleDateString()}</div>
                     </div>
                   </div>
-                  <span className="text-xs px-2 py-1 rounded bg-amber-100 text-amber-800">{r.stage}</span>
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium ml-3 flex-shrink-0">{r.stage}</span>
                 </div>
               ))}
             </div>

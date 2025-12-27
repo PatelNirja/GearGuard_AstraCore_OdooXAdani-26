@@ -174,8 +174,8 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Equipment Management</h2>
-          <p className="text-slate-600 mt-1">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1">Equipment Management</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             {canManage ? 'Manage your company assets' : 'View equipment list'}
           </p>
         </div>
@@ -185,29 +185,29 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
               resetForm();
               setShowModal(true);
             }}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-md transition-all duration-200 font-medium text-sm"
           >
-            <Plus size={20} />
+            <Plus size={18} />
             Add Equipment
           </button>
         )}
       </div>
 
-      <div className="mb-6 bg-white p-4 rounded-lg border border-slate-200">
-        <div className="flex flex-wrap gap-4 items-center">
+      <div className="mb-6 bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="flex flex-wrap gap-3 items-center">
           <div className="flex-1 min-w-[200px]">
             <input
               type="text"
               placeholder="Search equipment..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <select
             value={filterDepartment}
             onChange={(e) => setFilterDepartment(e.target.value)}
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">All Departments</option>
             {getUniqueDepartments().map((dept) => (
@@ -217,7 +217,7 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
           <select
             value={filterEmployee}
             onChange={(e) => setFilterEmployee(e.target.value)}
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">All Employees</option>
             {getUniqueEmployees().map((emp) => (
@@ -232,7 +232,7 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
                 setFilterDepartment('');
                 setFilterEmployee('');
               }}
-              className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800"
+              className="px-3 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
             >
               Clear
             </button>
@@ -240,45 +240,45 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 overflow-auto pb-2">
         {getFilteredEquipment().map((eq) => (
           <div
             key={eq._id}
-            className="bg-white rounded-xl shadow-md border border-slate-200 p-6 hover:shadow-lg transition-all duration-200"
+            className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-5 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200"
           >
             <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
-                  <Package className="text-blue-600" size={24} />
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="w-11 h-11 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Package className="text-blue-600 dark:text-blue-400" size={20} />
                 </div>
-                <div>
-                  <h3 className="font-bold text-slate-800">{eq.name}</h3>
-                  <p className="text-sm text-slate-500">{eq.serialNumber}</p>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate">{eq.name}</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">{eq.serialNumber}</p>
                 </div>
               </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[eq.status]}`}>
+              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ml-2 flex-shrink-0 ${statusColors[eq.status]}`}>
                 {eq.status}
               </span>
             </div>
 
-            <div className="space-y-2 mb-4">
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <Package size={16} />
-                <span>{eq.category === 'Other' && eq.customCategory ? eq.customCategory : eq.category}</span>
+            <div className="space-y-1.5 mb-4">
+              <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                <Package size={14} />
+                <span className="truncate">{eq.category === 'Other' && eq.customCategory ? eq.customCategory : eq.category}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <MapPin size={16} />
-                <span>{eq.location}</span>
+              <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                <MapPin size={14} />
+                <span className="truncate">{eq.location}</span>
               </div>
-              <div className="text-sm text-slate-600">
-                <span className="font-semibold">Department:</span> {eq.department}
+              <div className="text-xs text-slate-600 dark:text-slate-400">
+                <span className="font-semibold">Dept:</span> <span className="truncate">{eq.department}</span>
               </div>
-              <div className="text-sm text-slate-600">
-                <span className="font-semibold">Assigned To:</span> {eq.assignedTo}
+              <div className="text-xs text-slate-600 dark:text-slate-400">
+                <span className="font-semibold">Assigned:</span> <span className="truncate">{eq.assignedTo}</span>
               </div>
               {eq.maintenanceTeam && (
-                <div className="text-sm text-slate-600">
-                  <span className="font-semibold">Team:</span> {eq.maintenanceTeam.name}
+                <div className="text-xs text-slate-600 dark:text-slate-400">
+                  <span className="font-semibold">Team:</span> <span className="truncate">{eq.maintenanceTeam.name}</span>
                 </div>
               )}
             </div>
@@ -297,19 +297,19 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
             </button>
 
             {canManage && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                 <button
                   onClick={() => handleEdit(eq)}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium"
                 >
-                  <Edit size={16} />
+                  <Edit size={14} />
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(eq._id)}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs border border-red-300 dark:border-red-800 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={14} />
                   Delete
                 </button>
               </div>
@@ -320,9 +320,9 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-auto">
-            <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-slate-800">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-auto border border-slate-200 dark:border-slate-800">
+            <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between z-10">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
                 {selectedEquipment ? 'Edit Equipment' : 'Add New Equipment'}
               </h2>
               <button
@@ -330,9 +330,9 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
                   setShowModal(false);
                   resetForm();
                 }}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
 
@@ -550,13 +550,13 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
 
       {showRequestsModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-auto">
-            <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-auto border border-slate-200 dark:border-slate-800">
+            <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between z-10">
               <div>
-                <h2 className="text-2xl font-bold text-slate-800">
+                <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
                   Maintenance Requests - {selectedEquipment?.name}
                 </h2>
-                <p className="text-sm text-slate-600 mt-1">
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                   {requestCount} open requests
                 </p>
               </div>
@@ -565,9 +565,9 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
                   setShowRequestsModal(false);
                   setSelectedEquipment(null);
                 }}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
 

@@ -107,35 +107,35 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-auto">
-        <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-slate-800">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-auto">
+        <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between z-10">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
             {editRequest ? 'Edit Request' : 'New Maintenance Request'}
           </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
-            <X size={24} />
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+            <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Subject</label>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Subject</label>
             <input
               type="text"
               required
               value={formData.subject}
               onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="What needs to be fixed?"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Description</label>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Description</label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               rows="3"
               placeholder="Detailed description..."
             />
@@ -143,12 +143,12 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Equipment</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Equipment</label>
               <select
                 required
                 value={formData.equipment}
                 onChange={(e) => handleEquipmentChange(e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Select Equipment</option>
                 {equipment.map((eq) => (
@@ -160,11 +160,11 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Request Type</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Request Type</label>
               <select
                 value={formData.requestType}
                 onChange={(e) => setFormData({ ...formData, requestType: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="Corrective">Corrective</option>
                 <option value="Preventive">Preventive</option>
@@ -175,21 +175,21 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
           {selectedEquipment && (
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Category (Auto-filled)</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Category (Auto-filled)</label>
                 <input
                   type="text"
                   value={selectedEquipment.category || ''}
                   readOnly
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-slate-100 text-slate-600 cursor-not-allowed"
+                  className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-not-allowed"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Maintenance Team (Auto-filled)</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Maintenance Team (Auto-filled)</label>
                 <input
                   type="text"
                   value={selectedEquipment.maintenanceTeam?.name || 'N/A'}
                   readOnly
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-slate-100 text-slate-600 cursor-not-allowed"
+                  className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-not-allowed"
                 />
               </div>
             </div>
@@ -197,11 +197,11 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
 
           <div className={`grid gap-4 ${formData.requestType === 'Preventive' ? 'grid-cols-2' : 'grid-cols-1'}`}>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Priority</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Priority</label>
               <select
                 value={formData.priority}
                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
@@ -212,7 +212,7 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
 
             {formData.requestType === 'Preventive' && (
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Scheduled Date <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Scheduled Date <span className="text-red-500">*</span></label>
                 <input
                   type="date"
                   required={formData.requestType === 'Preventive'}
@@ -227,22 +227,22 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
                     }
                     setFormData({ ...formData, scheduledDate: selectedDate });
                   }}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <p className="text-xs text-slate-500 mt-1">Only future dates are allowed</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">Only future dates are allowed</p>
               </div>
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Assigned Technician Name</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Assigned Technician Name</label>
               {userRole === 'TECHNICIAN' && !editRequest ? (
                 <input
                   type="text"
                   value={user.name || ''}
                   disabled
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-slate-100 text-slate-600"
+                  className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                   placeholder="Auto-assigned to you"
                 />
               ) : (
@@ -250,59 +250,59 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
                   type="text"
                   value={formData.assignedTo.name}
                   onChange={(e) => setFormData({ ...formData, assignedTo: { ...formData.assignedTo, name: e.target.value } })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Technician name"
                   disabled={!canAssignTechnician}
                 />
               )}
               {userRole === 'TECHNICIAN' && !editRequest && (
-                <p className="text-xs text-slate-500 mt-1">You will be auto-assigned to this request</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">You will be auto-assigned to this request</p>
               )}
             </div>
 
             {userRole === 'MANAGER' && (
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Additional Technician (Optional)</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Additional Technician (Optional)</label>
                 <input
                   type="text"
                   value={formData.additionalTechnician.name}
                   onChange={(e) => setFormData({ ...formData, additionalTechnician: { ...formData.additionalTechnician, name: e.target.value } })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Technician name"
                 />
                 <input
                   type="email"
                   value={formData.additionalTechnician.email}
                   onChange={(e) => setFormData({ ...formData, additionalTechnician: { ...formData.additionalTechnician, email: e.target.value } })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+                  className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
                   placeholder="tech@example.com"
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Duration (hours)</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Duration (hours)</label>
               <input
                 type="number"
                 min="0"
                 value={formData.duration}
                 onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 0 })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg hover:shadow-lg transition-all duration-200 font-semibold"
+              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2.5 rounded-lg hover:shadow-md transition-all duration-200 font-semibold text-sm"
             >
               {editRequest ? 'Update Request' : 'Create Request'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200 font-semibold"
+              className="px-6 py-2.5 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 font-semibold text-sm"
             >
               Cancel
             </button>

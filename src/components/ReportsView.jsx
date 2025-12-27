@@ -221,7 +221,7 @@ const ReportsView = () => {
     const dash = c * pct;
     const gap = c - dash;
     return (
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col items-center gap-3">
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
           <circle cx={size / 2} cy={size / 2} r={r} stroke="#e2e8f0" strokeWidth={stroke} fill="none" />
           <circle
@@ -239,9 +239,9 @@ const ReportsView = () => {
             {Math.round(pct * 100)}%
           </text>
         </svg>
-        <div>
-          <div className="text-sm font-semibold text-slate-800">{label}</div>
-          <div className="text-xs text-slate-600">{value} of {total}</div>
+        <div className="text-center">
+          <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">{label}</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">{value} of {total}</div>
         </div>
       </div>
     );
@@ -281,7 +281,7 @@ const ReportsView = () => {
     const total = open + repaired + scrapped;
     const pct = (n) => (total > 0 ? (n / total) * 100 : 0);
     return (
-      <div className="w-full bg-slate-200 rounded-full h-4 overflow-hidden flex">
+      <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-3.5 overflow-hidden flex">
         <div className="bg-amber-500" style={{ width: `${pct(open)}%` }} />
         <div className="bg-green-500" style={{ width: `${pct(repaired)}%` }} />
         <div className="bg-red-500" style={{ width: `${pct(scrapped)}%` }} />
@@ -307,66 +307,66 @@ const ReportsView = () => {
   return (
     <div className="h-full flex flex-col">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-slate-800">Maintenance Reports</h2>
-        <p className="text-slate-600 mt-1">Analyze requests by team or equipment category</p>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1">Maintenance Reports</h2>
+        <p className="text-sm text-slate-600 dark:text-slate-400">Analyze requests by team or equipment category</p>
       </div>
 
-      <div className="flex gap-4 mb-6">
+      <div className="flex gap-3 mb-6">
         <button
           onClick={() => setViewType('team')}
-          className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+          className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all ${
             viewType === 'team'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+              ? 'bg-blue-500 text-white shadow-md'
+              : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
           }`}
         >
           <div className="flex items-center gap-2">
-            <TrendingUp size={20} />
+            <TrendingUp size={18} />
             By Team
           </div>
         </button>
         <button
           onClick={() => setViewType('category')}
-          className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+          className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all ${
             viewType === 'category'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+              ? 'bg-blue-500 text-white shadow-md'
+              : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
           }`}
         >
           <div className="flex items-center gap-2">
-            <PieChart size={20} />
+            <PieChart size={18} />
             By Category
           </div>
         </button>
         <button
           onClick={() => setViewType('trend')}
-          className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+          className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all ${
             viewType === 'trend'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+              ? 'bg-blue-500 text-white shadow-md'
+              : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
           }`}
         >
           <div className="flex items-center gap-2">
-            <LineChart size={20} />
+            <LineChart size={18} />
             Trends
           </div>
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6 flex-1 overflow-auto">
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-slate-800 mb-2">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex-1 overflow-auto">
+        <div className="mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
             {viewType === 'team'
               ? 'Requests per Team (Pivot)'
               : viewType === 'category'
                 ? 'Requests per Equipment Category (Pivot)'
                 : 'Preventive vs Corrective Trend (Monthly)'}
           </h3>
-          <p className="text-sm text-slate-600">
-            Total Requests: {baseCounts.total} |
-            Open: {baseCounts.open} |
-            Repaired: {baseCounts.repaired} |
-            Scrapped: {baseCounts.scrapped}
+          <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+            Total Requests: <span className="font-semibold text-slate-800 dark:text-slate-200">{baseCounts.total}</span> | 
+            Open: <span className="font-semibold text-amber-600">{baseCounts.open}</span> | 
+            Repaired: <span className="font-semibold text-green-600">{baseCounts.repaired}</span> | 
+            Scrapped: <span className="font-semibold text-red-600">{baseCounts.scrapped}</span>
           </p>
         </div>
 
@@ -378,32 +378,32 @@ const ReportsView = () => {
         ) : (
           <>
             {viewType === 'trend' ? (
-              <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                <div className="flex items-center gap-2 mb-3 text-slate-700 font-semibold">
+              <div className="bg-slate-50 dark:bg-slate-950 rounded-lg p-5 border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2 mb-4 text-slate-700 dark:text-slate-300 font-semibold text-sm">
                   <LineChart size={18} />
                   Monthly Total Requests
                 </div>
                 <SimpleLine data={monthlyTrend} />
               </div>
             ) : (
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                  <div className="flex items-center gap-2 mb-3 text-slate-700 font-semibold">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                <div className="bg-slate-50 dark:bg-slate-950 rounded-lg p-5 border border-slate-200 dark:border-slate-800">
+                  <div className="flex items-center gap-2 mb-4 text-slate-700 dark:text-slate-300 font-semibold text-sm">
                     <BarChart3 size={18} />
                     Bar Chart (Total)
                   </div>
-                  <div className="space-y-3">
+                  <div className="space-y-3.5">
                     {(viewType === 'team' ? pivotByTeam : pivotByCategory).slice(0, 10).map((row, idx) => {
                       const label = viewType === 'team' ? row.teamName : row.category;
                       const val = row.total;
                       const percentage = (val / maxCount) * 100;
                       return (
                         <div key={`${label}-${idx}`}>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="font-semibold text-slate-800 truncate max-w-[75%]">{label}</span>
-                            <span className="font-bold text-blue-600">{val}</span>
+                          <div className="flex items-center justify-between text-sm mb-1.5">
+                            <span className="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[75%]">{label}</span>
+                            <span className="font-bold text-blue-600 dark:text-blue-400 ml-2 flex-shrink-0">{val}</span>
                           </div>
-                          <div className="w-full bg-slate-200 rounded-full h-4 overflow-hidden">
+                          <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-3.5 overflow-hidden">
                             <div className="h-full bg-blue-500" style={{ width: `${percentage}%` }} />
                           </div>
                         </div>
@@ -412,28 +412,28 @@ const ReportsView = () => {
                   </div>
                 </div>
 
-                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                  <div className="flex items-center gap-2 mb-3 text-slate-700 font-semibold">
+                <div className="bg-slate-50 dark:bg-slate-950 rounded-lg p-5 border border-slate-200 dark:border-slate-800">
+                  <div className="flex items-center gap-2 mb-4 text-slate-700 dark:text-slate-300 font-semibold text-sm">
                     <Layers size={18} />
                     Stacked (Open vs Repaired vs Scrap)
                   </div>
-                  <div className="space-y-3">
+                  <div className="space-y-3.5">
                     {(viewType === 'team' ? pivotByTeam : pivotByCategory).slice(0, 10).map((row, idx) => {
                       const label = viewType === 'team' ? row.teamName : row.category;
                       return (
-                        <div key={`${label}-${idx}`} className="space-y-1">
+                        <div key={`${label}-${idx}`} className="space-y-1.5">
                           <div className="flex items-center justify-between text-sm">
-                            <span className="font-semibold text-slate-800 truncate max-w-[75%]">{label}</span>
-                            <span className="text-xs text-slate-600">{row.open} open • {row.repaired} repaired • {row.scrapped} scrap</span>
+                            <span className="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[75%]">{label}</span>
+                            <span className="text-xs text-slate-600 dark:text-slate-400 ml-2 flex-shrink-0">{row.open} open • {row.repaired} repaired • {row.scrapped} scrap</span>
                           </div>
                           <StackedBar open={row.open} repaired={row.repaired} scrapped={row.scrapped} />
                         </div>
                       );
                     })}
-                    <div className="flex gap-4 text-xs text-slate-600 mt-2">
-                      <div className="flex items-center gap-2"><span className="w-3 h-3 bg-amber-500 inline-block rounded" /> Open</div>
-                      <div className="flex items-center gap-2"><span className="w-3 h-3 bg-green-500 inline-block rounded" /> Repaired</div>
-                      <div className="flex items-center gap-2"><span className="w-3 h-3 bg-red-500 inline-block rounded" /> Scrap</div>
+                    <div className="flex gap-4 text-xs text-slate-600 dark:text-slate-400 mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+                      <div className="flex items-center gap-1.5"><span className="w-3 h-3 bg-amber-500 inline-block rounded" /> Open</div>
+                      <div className="flex items-center gap-1.5"><span className="w-3 h-3 bg-green-500 inline-block rounded" /> Repaired</div>
+                      <div className="flex items-center gap-1.5"><span className="w-3 h-3 bg-red-500 inline-block rounded" /> Scrap</div>
                     </div>
                   </div>
                 </div>
@@ -442,53 +442,53 @@ const ReportsView = () => {
           </>
         )}
 
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-            <h4 className="font-semibold text-slate-700 mb-3">Summary Statistics</h4>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-slate-600">Total Requests:</span><span className="font-semibold">{baseCounts.total}</span></div>
-              <div className="flex justify-between"><span className="text-slate-600">Open Requests:</span><span className="font-semibold text-amber-600">{baseCounts.open}</span></div>
-              <div className="flex justify-between"><span className="text-slate-600">Repaired:</span><span className="font-semibold text-green-600">{baseCounts.repaired}</span></div>
-              <div className="flex justify-between"><span className="text-slate-600">Scrapped:</span><span className="font-semibold text-red-600">{baseCounts.scrapped}</span></div>
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div className="bg-slate-50 dark:bg-slate-950 rounded-lg p-5 border border-slate-200 dark:border-slate-800">
+            <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-4 text-sm uppercase tracking-wide">Summary Statistics</h4>
+            <div className="space-y-2.5 text-sm">
+              <div className="flex justify-between items-center py-1"><span className="text-slate-600 dark:text-slate-400">Total Requests:</span><span className="font-semibold text-slate-800 dark:text-slate-200">{baseCounts.total}</span></div>
+              <div className="flex justify-between items-center py-1"><span className="text-slate-600 dark:text-slate-400">Open Requests:</span><span className="font-semibold text-amber-600">{baseCounts.open}</span></div>
+              <div className="flex justify-between items-center py-1"><span className="text-slate-600 dark:text-slate-400">Repaired:</span><span className="font-semibold text-green-600">{baseCounts.repaired}</span></div>
+              <div className="flex justify-between items-center py-1"><span className="text-slate-600 dark:text-slate-400">Scrapped:</span><span className="font-semibold text-red-600">{baseCounts.scrapped}</span></div>
             </div>
           </div>
 
-          <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-            <h4 className="font-semibold text-slate-700 mb-3">Corrective vs Preventive</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-slate-50 dark:bg-slate-950 rounded-lg p-5 border border-slate-200 dark:border-slate-800">
+            <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-4 text-sm uppercase tracking-wide">Corrective vs Preventive</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Donut value={baseCounts.corrective} total={baseCounts.total} label="Corrective" />
               <Donut value={baseCounts.preventive} total={baseCounts.total} label="Preventive" />
             </div>
           </div>
 
-          <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-            <h4 className="font-semibold text-slate-700 mb-3">Risk Indicators</h4>
-            <div className="space-y-4 text-sm">
+          <div className="bg-slate-50 dark:bg-slate-950 rounded-lg p-5 border border-slate-200 dark:border-slate-800">
+            <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-4 text-sm uppercase tracking-wide">Risk Indicators</h4>
+            <div className="space-y-5 text-sm">
               <div>
-                <div className="font-semibold text-slate-800 mb-2">Teams with Highest Backlog</div>
+                <div className="font-semibold text-slate-800 dark:text-slate-200 mb-2.5 text-xs uppercase tracking-wide">Teams with Highest Backlog</div>
                 {topBacklogTeams.length === 0 ? (
-                  <div className="text-slate-600">No data</div>
+                  <div className="text-slate-500 dark:text-slate-400 text-xs">No data</div>
                 ) : (
                   <div className="space-y-2">
                     {topBacklogTeams.map(t => (
-                      <div key={t.teamId} className="flex items-center justify-between">
-                        <span className="text-slate-700">{t.teamName}</span>
-                        <span className="font-semibold text-amber-700">{t.backlog}</span>
+                      <div key={t.teamId} className="flex items-center justify-between py-1">
+                        <span className="text-slate-700 dark:text-slate-300 truncate flex-1">{t.teamName}</span>
+                        <span className="font-semibold text-amber-700 dark:text-amber-500 ml-2 flex-shrink-0">{t.backlog}</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
               <div>
-                <div className="font-semibold text-slate-800 mb-2">Highest Scrap Rate Categories</div>
+                <div className="font-semibold text-slate-800 dark:text-slate-200 mb-2.5 text-xs uppercase tracking-wide">Highest Scrap Rate Categories</div>
                 {highScrapCategories.length === 0 ? (
-                  <div className="text-slate-600">No data</div>
+                  <div className="text-slate-500 dark:text-slate-400 text-xs">No data</div>
                 ) : (
                   <div className="space-y-2">
                     {highScrapCategories.map(c => (
-                      <div key={c.category} className="flex items-center justify-between">
-                        <span className="text-slate-700">{c.category}</span>
-                        <span className="font-semibold text-red-700">{c.scrapRate}%</span>
+                      <div key={c.category} className="flex items-center justify-between py-1">
+                        <span className="text-slate-700 dark:text-slate-300 truncate flex-1">{c.category}</span>
+                        <span className="font-semibold text-red-700 dark:text-red-500 ml-2 flex-shrink-0">{c.scrapRate}%</span>
                       </div>
                     ))}
                   </div>
@@ -499,44 +499,44 @@ const ReportsView = () => {
         </div>
 
         {viewType !== 'trend' && (
-          <div className="mt-8 bg-white rounded-xl border border-slate-200 overflow-auto">
-            <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-              <div className="font-semibold text-slate-800">Pivot Table</div>
-              <div className="text-xs text-slate-500">Real data from DB</div>
+          <div className="mt-8 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-auto shadow-sm">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950">
+              <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm">Pivot Table</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Real data from DB</div>
             </div>
             <table className="min-w-full text-sm">
-              <thead className="bg-slate-50">
+              <thead className="bg-slate-50 dark:bg-slate-950">
                 <tr className="text-left">
-                  <th className="p-3 font-semibold text-slate-700">{viewType === 'team' ? 'Team Name' : 'Equipment Category'}</th>
-                  <th className="p-3 font-semibold text-slate-700">Total</th>
-                  <th className="p-3 font-semibold text-slate-700">Open</th>
-                  <th className="p-3 font-semibold text-slate-700">Repaired</th>
-                  <th className="p-3 font-semibold text-slate-700">Scrapped</th>
-                  <th className="p-3 font-semibold text-slate-700">Corrective</th>
-                  <th className="p-3 font-semibold text-slate-700">Preventive</th>
-                  <th className="p-3 font-semibold text-slate-700">Avg Repair (h)</th>
+                  <th className="p-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wide">{viewType === 'team' ? 'Team Name' : 'Equipment Category'}</th>
+                  <th className="p-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wide">Total</th>
+                  <th className="p-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wide">Open</th>
+                  <th className="p-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wide">Repaired</th>
+                  <th className="p-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wide">Scrapped</th>
+                  <th className="p-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wide">Corrective</th>
+                  <th className="p-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wide">Preventive</th>
+                  <th className="p-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wide">Avg Repair (h)</th>
                   {viewType === 'team' ? (
-                    <th className="p-3 font-semibold text-slate-700">Hours Logged</th>
+                    <th className="p-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wide">Hours Logged</th>
                   ) : (
-                    <th className="p-3 font-semibold text-slate-700">Scrap Rate</th>
+                    <th className="p-3 font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wide">Scrap Rate</th>
                   )}
                 </tr>
               </thead>
               <tbody>
                 {(viewType === 'team' ? pivotByTeam : pivotByCategory).map((row) => (
-                  <tr key={viewType === 'team' ? row.teamId : row.category} className="border-t border-slate-200">
-                    <td className="p-3 font-semibold text-slate-800">{viewType === 'team' ? row.teamName : row.category}</td>
-                    <td className="p-3">{row.total}</td>
-                    <td className="p-3 text-amber-700 font-semibold">{row.open}</td>
-                    <td className="p-3 text-green-700 font-semibold">{row.repaired}</td>
-                    <td className="p-3 text-red-700 font-semibold">{row.scrapped}</td>
-                    <td className="p-3">{row.corrective}</td>
-                    <td className="p-3">{row.preventive}</td>
-                    <td className="p-3">{row.avgRepairTimeHours || 0}</td>
+                  <tr key={viewType === 'team' ? row.teamId : row.category} className="border-t border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-950 transition-colors">
+                    <td className="p-3 font-semibold text-slate-800 dark:text-slate-200">{viewType === 'team' ? row.teamName : row.category}</td>
+                    <td className="p-3 text-slate-700 dark:text-slate-300">{row.total}</td>
+                    <td className="p-3 text-amber-700 dark:text-amber-500 font-semibold">{row.open}</td>
+                    <td className="p-3 text-green-700 dark:text-green-500 font-semibold">{row.repaired}</td>
+                    <td className="p-3 text-red-700 dark:text-red-500 font-semibold">{row.scrapped}</td>
+                    <td className="p-3 text-slate-700 dark:text-slate-300">{row.corrective}</td>
+                    <td className="p-3 text-slate-700 dark:text-slate-300">{row.preventive}</td>
+                    <td className="p-3 text-slate-700 dark:text-slate-300">{row.avgRepairTimeHours || 0}</td>
                     {viewType === 'team' ? (
-                      <td className="p-3">{row.totalHoursLogged || 0}</td>
+                      <td className="p-3 text-slate-700 dark:text-slate-300">{row.totalHoursLogged || 0}</td>
                     ) : (
-                      <td className="p-3">{row.scrapRate || 0}%</td>
+                      <td className="p-3 text-slate-700 dark:text-slate-300">{row.scrapRate || 0}%</td>
                     )}
                   </tr>
                 ))}

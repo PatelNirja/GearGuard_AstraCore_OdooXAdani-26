@@ -106,75 +106,75 @@ const RequestCard = ({ request, technicians = [], onDragStart, onUpdate }) => {
     <div
       draggable={canDrag}
       onDragStart={canDrag ? () => onDragStart(request) : undefined}
-      className={`bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 border-l-4 ${
+      className={`bg-white dark:bg-slate-900 rounded-lg p-3.5 shadow-sm hover:shadow-md transition-all duration-200 border-l-4 ${
         isOverdue ? 'border-l-red-500' : 'border-l-transparent'
-      } border-r border-t border-b border-slate-200 ${
+      } border-r border-t border-b border-slate-200 dark:border-slate-800 ${
         canDrag ? 'cursor-move' : 'cursor-default'
       }`}
     >
       {isOverdue && (
-        <div className="flex items-center gap-1 mb-2 text-red-600 text-xs font-semibold">
-          <AlertCircle size={14} />
+        <div className="flex items-center gap-1.5 mb-2.5 text-red-600 dark:text-red-400 text-xs font-semibold">
+          <AlertCircle size={12} />
           <span>OVERDUE</span>
         </div>
       )}
       <div className="flex items-start justify-between mb-2">
-        <h4 className="font-semibold text-slate-800 text-sm flex-1">{request.subject}</h4>
+        <h4 className="font-semibold text-slate-800 dark:text-slate-100 text-sm flex-1 leading-tight">{request.subject}</h4>
       </div>
 
-      <p className="text-xs text-slate-600 mb-3 line-clamp-2">{request.description}</p>
+      <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 line-clamp-2 leading-relaxed">{request.description}</p>
 
-      <div className="space-y-2 mb-3">
-        <div className="flex items-center gap-2 text-xs text-slate-600">
-          <Calendar size={14} />
+      <div className="space-y-1.5 mb-3">
+        <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+          <Calendar size={12} />
           <span>{new Date(request.scheduledDate).toLocaleDateString()}</span>
         </div>
         {request.equipment && (
-          <div className="text-xs text-slate-600 font-medium">
+          <div className="text-xs text-slate-600 dark:text-slate-400 font-medium truncate">
             {request.equipment.name}
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-between">
-        <span className={`px-2 py-1 rounded text-xs font-medium ${priorityColors[request.priority]}`}>
+      <div className="flex items-center justify-between mb-3">
+        <span className={`px-2 py-0.5 rounded text-xs font-medium ${priorityColors[request.priority]}`}>
           {request.priority}
         </span>
         {request.assignedTo && (
-          <div className="flex items-center gap-1">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">
+          <div className="flex items-center gap-1.5">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">
               {request.assignedTo.name.charAt(0)}
             </div>
           </div>
         )}
       </div>
 
-      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-        <span className={`px-2 py-1 rounded ${
-          request.requestType === 'Corrective' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+      <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs mb-3">
+        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+          request.requestType === 'Corrective' ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' : 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
         }`}>
           {request.requestType}
         </span>
         {request.duration > 0 && (
-          <span className="text-slate-500 flex items-center gap-1">
-            <Clock size={12} />
+          <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            <Clock size={11} />
             {request.duration}h
           </span>
         )}
       </div>
 
       {/* Action Buttons */}
-      <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+      <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800 space-y-2">
         {isManager ? (
           <>
-            {isAssigned ? (
+                {isAssigned ? (
               <div className="space-y-2">
-                <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-xs">
-                  <div className="flex items-center gap-2 text-emerald-900">
-                    <CheckCircle size={16} className="text-emerald-600" />
+                <div className="flex items-center justify-between px-2.5 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-xs">
+                  <div className="flex items-center gap-1.5 text-emerald-900 dark:text-emerald-300">
+                    <CheckCircle size={14} className="text-emerald-600 dark:text-emerald-400" />
                     <span className="font-medium">Assigned</span>
                   </div>
-                  <span className="text-emerald-800 truncate max-w-[60%]">{request.assignedTo.name || request.assignedTo.email}</span>
+                  <span className="text-emerald-800 dark:text-emerald-300 truncate max-w-[60%] text-xs">{request.assignedTo.name || request.assignedTo.email}</span>
                 </div>
                 {request.stage !== 'Scrap' && (
                   <button
@@ -195,7 +195,7 @@ const RequestCard = ({ request, technicians = [], onDragStart, onUpdate }) => {
                   <select
                     value={selectedTechnicianId}
                     onChange={(e) => setSelectedTechnicianId(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs"
+                    className="w-full px-2.5 py-1.5 text-xs border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     disabled={loading}
                   >
                     <option value="">Assign technician...</option>
@@ -222,9 +222,9 @@ const RequestCard = ({ request, technicians = [], onDragStart, onUpdate }) => {
               <button
                 onClick={handleAssignSelf}
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-xs font-medium disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-xs font-medium disabled:opacity-50"
               >
-                <User size={14} />
+                <User size={13} />
                 Accept Request
               </button>
             )}
@@ -232,9 +232,9 @@ const RequestCard = ({ request, technicians = [], onDragStart, onUpdate }) => {
               <button
                 onClick={handleStart}
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-xs font-medium disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-xs font-medium disabled:opacity-50"
               >
-                <Play size={14} />
+                <Play size={13} />
                 Start Work
               </button>
             )}
@@ -242,9 +242,9 @@ const RequestCard = ({ request, technicians = [], onDragStart, onUpdate }) => {
               <button
                 onClick={() => setShowCompleteModal(true)}
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-xs font-medium disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-xs font-medium disabled:opacity-50"
               >
-                <CheckCircle size={14} />
+                <CheckCircle size={13} />
                 Mark Repaired
               </button>
             )}
@@ -267,10 +267,10 @@ const RequestCard = ({ request, technicians = [], onDragStart, onUpdate }) => {
 
       {showScrapModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4">Scrap Request</h3>
-            <div className="mb-4">
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-6 max-w-sm w-full shadow-xl border border-slate-200 dark:border-slate-800">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-5">Scrap Request</h3>
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 Hours Spent <span className="text-red-500">*</span>
               </label>
               <input
@@ -279,7 +279,8 @@ const RequestCard = ({ request, technicians = [], onDragStart, onUpdate }) => {
                 step="0.5"
                 value={scrapHoursSpent}
                 onChange={(e) => setScrapHoursSpent(parseFloat(e.target.value) || 0)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                autoFocus
               />
             </div>
             <div className="flex gap-3">
@@ -293,13 +294,13 @@ const RequestCard = ({ request, technicians = [], onDragStart, onUpdate }) => {
                   await handleScrap();
                 }}
                 disabled={loading}
-                className="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-colors font-semibold disabled:opacity-50"
+                className="flex-1 bg-red-500 text-white py-2.5 rounded-lg hover:bg-red-600 transition-colors font-semibold text-sm disabled:opacity-50"
               >
-                Confirm
+                {loading ? 'Processing...' : 'Confirm'}
               </button>
               <button
                 onClick={() => setShowScrapModal(false)}
-                className="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-semibold"
+                className="px-5 py-2.5 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-semibold text-sm"
               >
                 Cancel
               </button>
@@ -311,10 +312,10 @@ const RequestCard = ({ request, technicians = [], onDragStart, onUpdate }) => {
       {/* Complete Modal */}
       {showCompleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4">Complete Request</h3>
-            <div className="mb-4">
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-6 max-w-sm w-full shadow-xl border border-slate-200 dark:border-slate-800">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-5">Complete Request</h3>
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 Hours Spent <span className="text-red-500">*</span>
               </label>
               <input
@@ -323,7 +324,7 @@ const RequestCard = ({ request, technicians = [], onDragStart, onUpdate }) => {
                 step="0.1"
                 value={hoursSpent}
                 onChange={(e) => setHoursSpent(parseFloat(e.target.value) || 0)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Enter hours spent"
                 autoFocus
               />
@@ -332,7 +333,7 @@ const RequestCard = ({ request, technicians = [], onDragStart, onUpdate }) => {
               <button
                 onClick={handleComplete}
                 disabled={loading || !hoursSpent || hoursSpent <= 0}
-                className="flex-1 bg-purple-500 text-white py-2 rounded-lg hover:bg-purple-600 transition-colors font-medium disabled:opacity-50"
+                className="flex-1 bg-purple-500 text-white py-2.5 rounded-lg hover:bg-purple-600 transition-colors font-semibold text-sm disabled:opacity-50"
               >
                 {loading ? 'Completing...' : 'Complete'}
               </button>
@@ -341,7 +342,7 @@ const RequestCard = ({ request, technicians = [], onDragStart, onUpdate }) => {
                   setShowCompleteModal(false);
                   setHoursSpent(0);
                 }}
-                className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                className="px-5 py-2.5 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-semibold text-sm"
               >
                 Cancel
               </button>

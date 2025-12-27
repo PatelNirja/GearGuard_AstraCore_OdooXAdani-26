@@ -84,35 +84,33 @@ const CalendarView = ({ requests, equipment, teams, onUpdate }) => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800">Preventive Maintenance Calendar</h2>
-          <p className="text-slate-600 mt-1">Schedule and track preventive maintenance</p>
-        </div>
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1">Preventive Maintenance Calendar</h2>
+        <p className="text-sm text-slate-600 dark:text-slate-400">Schedule and track preventive maintenance</p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-lg border border-slate-200 flex-1 flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-slate-200">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex-1 flex flex-col">
+        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
           <button
             onClick={handlePrevMonth}
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={20} />
           </button>
-          <h3 className="text-2xl font-bold text-slate-800">
+          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">
             {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
           </h3>
           <button
             onClick={handleNextMonth}
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
           >
-            <ChevronRight size={24} />
+            <ChevronRight size={20} />
           </button>
         </div>
 
-        <div className="grid grid-cols-7 border-b border-slate-200">
+        <div className="grid grid-cols-7 border-b border-slate-200 dark:border-slate-800">
           {dayNames.map(day => (
-            <div key={day} className="p-4 text-center font-semibold text-slate-600 text-sm">
+            <div key={day} className="p-3 text-center font-semibold text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wide">
               {day}
             </div>
           ))}
@@ -131,14 +129,14 @@ const CalendarView = ({ requests, equipment, teams, onUpdate }) => {
               <div
                 key={index}
                 onClick={() => day && canClickDate && handleDateClick(day)}
-                className={`border-r border-b border-slate-200 p-3 min-h-[120px] ${
-                  day ? (canClickDate ? 'cursor-pointer hover:bg-slate-50' : isPastDate ? 'opacity-50 cursor-not-allowed' : 'cursor-default') : 'bg-slate-50'
-                } ${isToday ? 'bg-blue-50' : ''}`}
+                className={`border-r border-b border-slate-200 dark:border-slate-800 p-2.5 min-h-[100px] ${
+                  day ? (canClickDate ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800' : isPastDate ? 'opacity-50 cursor-not-allowed' : 'cursor-default') : 'bg-slate-50 dark:bg-slate-950'
+                } ${isToday ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
               >
                 {day && (
                   <>
                     <div className={`text-sm font-semibold mb-2 ${
-                      isToday ? 'text-blue-600' : 'text-slate-700'
+                      isToday ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'
                     }`}>
                       {day.getDate()}
                     </div>
@@ -146,14 +144,14 @@ const CalendarView = ({ requests, equipment, teams, onUpdate }) => {
                       {dayRequests.slice(0, 3).map(req => (
                         <div
                           key={req._id}
-                          className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded truncate"
+                          className="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 px-2 py-0.5 rounded truncate font-medium"
                           title={req.subject}
                         >
                           {req.subject}
                         </div>
                       ))}
                       {dayRequests.length > 3 && (
-                        <div className="text-xs text-slate-500">
+                        <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                           +{dayRequests.length - 3} more
                         </div>
                       )}
