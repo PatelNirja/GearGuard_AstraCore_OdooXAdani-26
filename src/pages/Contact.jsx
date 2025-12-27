@@ -35,7 +35,8 @@ export default function Contact() {
   };
 
   return (
-    <div className="space-y-10">
+    <div className="bg-white dark:bg-slate-950">
+      <div className="mx-auto max-w-6xl px-4 py-10 space-y-10">
       <section className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/40 backdrop-blur shadow-soft-lg p-10">
         <h1 className="text-3xl md:text-4xl font-semibold text-slate-900 dark:text-white">Contact Us</h1>
         <p className="mt-2 text-slate-600 dark:text-slate-300">We’d love to hear from you</p>
@@ -143,6 +144,7 @@ export default function Contact() {
           </div>
         </div>
       </section>
+      </div>
     </div>
   );
 }
