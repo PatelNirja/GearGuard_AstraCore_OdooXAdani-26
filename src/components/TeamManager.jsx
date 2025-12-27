@@ -1,8 +1,21 @@
 import { useState } from 'react';
 import { Plus, Users, Mail, Phone, Edit, Trash2, X, UserPlus } from 'lucide-react';
 import { api } from '../utils/api';
+import { authStore } from '../utils/auth';
 
 const TeamManager = ({ teams, onUpdate }) => {
+  const user = authStore.getUser();
+  const userRole = user?.role?.toUpperCase() || 'USER';
+  const canManage = userRole === 'MANAGER';
+  
+  // Filter teams for technicians - only show teams where they are a member
+  const filteredTeams = userRole === 'TECHNICIAN' 
+    ? teams.filter(team => 
+        team.members?.some(member => 
+          member.email?.toLowerCase() === user?.email?.toLowerCase()
+        )
+      )
+    : teams;
   const [showModal, setShowModal] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [formData, setFormData] = useState({
@@ -86,22 +99,30 @@ const TeamManager = ({ teams, onUpdate }) => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Team Management</h2>
-          <p className="text-slate-600 mt-1">Manage maintenance teams and members</p>
+          <p className="text-slate-600 mt-1">
+            {canManage 
+              ? 'Manage maintenance teams and members' 
+              : userRole === 'TECHNICIAN'
+              ? 'View your assigned teams'
+              : 'View teams'}
+          </p>
         </div>
-        <button
-          onClick={() => {
-            resetForm();
-            setShowModal(true);
-          }}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
-        >
-          <Plus size={20} />
-          Add Team
-        </button>
+        {canManage && (
+          <button
+            onClick={() => {
+              resetForm();
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
+          >
+            <Plus size={20} />
+            Add Team
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-auto">
-        {teams.map((team) => (
+        {filteredTeams.map((team) => (
           <div
             key={team._id}
             className="bg-white rounded-xl shadow-md border border-slate-200 p-6 hover:shadow-lg transition-all duration-200"
@@ -144,22 +165,24 @@ const TeamManager = ({ teams, onUpdate }) => {
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleEdit(team)}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                <Edit size={16} />
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(team._id)}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
-              >
-                <Trash2 size={16} />
-                Delete
-              </button>
-            </div>
+            {canManage && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEdit(team)}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  <Edit size={16} />
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(team._id)}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 size={16} />
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>

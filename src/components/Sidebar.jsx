@@ -4,14 +4,18 @@ import { authStore } from '../utils/auth';
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const user = authStore.getUser();
+  const userRole = user?.role?.toUpperCase() || 'USER';
 
-  const menuItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: Home },
-    { path: '/requests', label: 'Requests', icon: LayoutGrid },
-    { path: '/calendar', label: 'Calendar', icon: Calendar },
-    { path: '/equipment', label: 'Equipment', icon: Package },
-    { path: '/teams', label: 'Teams', icon: Users }
+  const allMenuItems = [
+    { path: '/dashboard', label: 'Dashboard', icon: Home, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
+    { path: '/requests', label: 'Requests', icon: LayoutGrid, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
+    { path: '/calendar', label: 'Calendar', icon: Calendar, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
+    { path: '/equipment', label: 'Equipment', icon: Package, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
+    { path: '/teams', label: 'Teams', icon: Users, roles: ['TECHNICIAN', 'MANAGER'] }
   ];
+
+  const menuItems = allMenuItems.filter(item => item.roles.includes(userRole));
 
   const onLogout = () => {
     authStore.clear();

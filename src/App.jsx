@@ -3,6 +3,7 @@ import { useTheme } from './hooks/useTheme';
 import PublicLayout from './layouts/PublicLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import ProtectedRoute from './components/ProtectedRoute';
+import RoleProtectedRoute from './components/RoleProtectedRoute';
 import Home from './pages/Home';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -39,7 +40,14 @@ function App() {
           <Route path="/requests" element={<Requests />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/equipment" element={<Equipment />} />
-          <Route path="/teams" element={<Teams />} />
+          <Route 
+            path="/teams" 
+            element={
+              <RoleProtectedRoute allowedRoles={['TECHNICIAN', 'MANAGER']}>
+                <Teams />
+              </RoleProtectedRoute>
+            } 
+          />
         </Route>
 
         {/* Backward compatibility redirect */}

@@ -1,4 +1,5 @@
 import { Clock, AlertCircle, User, Calendar } from 'lucide-react';
+import { authStore } from '../utils/auth';
 
 const priorityColors = {
   'Low': 'bg-slate-100 text-slate-700',
@@ -8,13 +9,18 @@ const priorityColors = {
 };
 
 const RequestCard = ({ request, onDragStart, onUpdate }) => {
+  const user = authStore.getUser();
+  const userRole = user?.role?.toUpperCase() || 'USER';
+  const canDrag = userRole === 'TECHNICIAN' || userRole === 'MANAGER';
   const isOverdue = new Date(request.scheduledDate) < new Date() && request.stage !== 'Repaired' && request.stage !== 'Scrap';
 
   return (
     <div
-      draggable
-      onDragStart={() => onDragStart(request)}
-      className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-move border border-slate-200"
+      draggable={canDrag}
+      onDragStart={canDrag ? () => onDragStart(request) : undefined}
+      className={`bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 border border-slate-200 ${
+        canDrag ? 'cursor-move' : 'cursor-default'
+      }`}
     >
       <div className="flex items-start justify-between mb-2">
         <h4 className="font-semibold text-slate-800 text-sm flex-1">{request.subject}</h4>

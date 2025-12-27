@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { api } from '../utils/api';
+import { authStore } from '../utils/auth';
 
 const RequestModal = ({ equipment, teams, editRequest, onClose, onUpdate }) => {
+  const user = authStore.getUser();
+  const userRole = user?.role?.toUpperCase() || 'USER';
+  const canCreatePreventive = userRole === 'MANAGER';
+  const canAssignTechnician = userRole === 'MANAGER' || userRole === 'TECHNICIAN';
   const [formData, setFormData] = useState({
     subject: '',
     description: '',
@@ -37,10 +42,21 @@ const RequestModal = ({ equipment, teams, editRequest, onClose, onUpdate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const submitData = { ...formData };
+      
+      // Auto-assign technician if they are creating the request
+      if (userRole === 'TECHNICIAN' && !editRequest) {
+        submitData.assignedTo = {
+          name: user.name || '',
+          email: user.email || '',
+          avatar: ''
+        };
+      }
+      
       if (editRequest) {
-        await api.requests.update(editRequest._id, formData);
+        await api.requests.update(editRequest._id, submitData);
       } else {
-        await api.requests.create(formData);
+        await api.requests.create(submitData);
       }
       onUpdate();
       onClose();
@@ -110,10 +126,14 @@ const RequestModal = ({ equipment, teams, editRequest, onClose, onUpdate }) => {
                 value={formData.requestType}
                 onChange={(e) => setFormData({ ...formData, requestType: e.target.value })}
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={!canCreatePreventive && formData.requestType === 'Preventive'}
               >
                 <option value="Corrective">Corrective</option>
-                <option value="Preventive">Preventive</option>
+                {canCreatePreventive && <option value="Preventive">Preventive</option>}
               </select>
+              {!canCreatePreventive && (
+                <p className="text-xs text-slate-500 mt-1">Only managers can create preventive requests</p>
+              )}
             </div>
           </div>
 
@@ -155,13 +175,27 @@ const RequestModal = ({ equipment, teams, editRequest, onClose, onUpdate }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Assigned Technician Name</label>
-              <input
-                type="text"
-                value={formData.assignedTo.name}
-                onChange={(e) => setFormData({ ...formData, assignedTo: { ...formData.assignedTo, name: e.target.value } })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Technician name"
-              />
+              {userRole === 'TECHNICIAN' && !editRequest ? (
+                <input
+                  type="text"
+                  value={user.name || ''}
+                  disabled
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-slate-100 text-slate-600"
+                  placeholder="Auto-assigned to you"
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={formData.assignedTo.name}
+                  onChange={(e) => setFormData({ ...formData, assignedTo: { ...formData.assignedTo, name: e.target.value } })}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Technician name"
+                  disabled={!canAssignTechnician}
+                />
+              )}
+              {userRole === 'TECHNICIAN' && !editRequest && (
+                <p className="text-xs text-slate-500 mt-1">You will be auto-assigned to this request</p>
+              )}
             </div>
 
             <div>

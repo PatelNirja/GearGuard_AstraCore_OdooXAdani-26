@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { Plus, Package, Wrench, MapPin, Calendar, Edit, Trash2, X } from 'lucide-react';
 import { api } from '../utils/api';
+import { authStore } from '../utils/auth';
 
 const EquipmentManager = ({ equipment, teams, onUpdate }) => {
+  const user = authStore.getUser();
+  const userRole = user?.role?.toUpperCase() || 'USER';
+  const canManage = userRole === 'MANAGER';
   const [showModal, setShowModal] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState(null);
   const [equipmentRequests, setEquipmentRequests] = useState([]);
@@ -107,18 +111,22 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Equipment Management</h2>
-          <p className="text-slate-600 mt-1">Manage your company assets</p>
+          <p className="text-slate-600 mt-1">
+            {canManage ? 'Manage your company assets' : 'View equipment list'}
+          </p>
         </div>
-        <button
-          onClick={() => {
-            resetForm();
-            setShowModal(true);
-          }}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
-        >
-          <Plus size={20} />
-          Add Equipment
-        </button>
+        {canManage && (
+          <button
+            onClick={() => {
+              resetForm();
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
+          >
+            <Plus size={20} />
+            Add Equipment
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-auto">
@@ -172,22 +180,24 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
               Maintenance Requests
             </button>
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleEdit(eq)}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                <Edit size={16} />
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(eq._id)}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
-              >
-                <Trash2 size={16} />
-                Delete
-              </button>
-            </div>
+            {canManage && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEdit(eq)}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  <Edit size={16} />
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(eq._id)}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 size={16} />
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
