@@ -54,18 +54,33 @@ router.get('/:id/requests/count', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
+    if (!req.body.maintenanceTeam) {
+      return res.status(400).json({ message: 'Maintenance team is required' });
+    }
+    if (!req.body.defaultTechnician || !req.body.defaultTechnician.email) {
+      return res.status(400).json({ message: 'Default technician email is required' });
+    }
     const equipment = new Equipment(req.body);
     const newEquipment = await equipment.save();
     const populated = await Equipment.findById(newEquipment._id)
       .populate('maintenanceTeam');
     res.status(201).json(populated);
   } catch (error) {
+    if (error && error.code === 11000 && error.keyPattern && error.keyPattern.serialNumber) {
+      return res.status(409).json({ message: 'Serial number already exists. Please use a unique serial number.' });
+    }
     res.status(400).json({ message: error.message });
   }
 });
 
 router.put('/:id', async (req, res) => {
   try {
+    if (req.body.maintenanceTeam === null || req.body.maintenanceTeam === '') {
+      return res.status(400).json({ message: 'Maintenance team is required' });
+    }
+    if (req.body.defaultTechnician && !req.body.defaultTechnician.email) {
+      return res.status(400).json({ message: 'Default technician email is required' });
+    }
     const equipment = await Equipment.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -76,6 +91,9 @@ router.put('/:id', async (req, res) => {
     }
     res.json(equipment);
   } catch (error) {
+    if (error && error.code === 11000 && error.keyPattern && error.keyPattern.serialNumber) {
+      return res.status(409).json({ message: 'Serial number already exists. Please use a unique serial number.' });
+    }
     res.status(400).json({ message: error.message });
   }
 });

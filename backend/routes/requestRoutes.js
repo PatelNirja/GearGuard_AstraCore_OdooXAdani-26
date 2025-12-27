@@ -7,6 +7,74 @@ import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
+router.get('/manager', requireAuth, async (req, res) => {
+  try {
+    if (req.user.role !== 'MANAGER') {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    const requests = await MaintenanceRequest.find()
+      .populate('equipment')
+      .populate('maintenanceTeam')
+      .sort({ createdAt: -1 });
+
+    return res.json(requests);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+
+router.get('/technician', requireAuth, async (req, res) => {
+  try {
+    if (req.user.role !== 'TECHNICIAN') {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    const filter = {
+      $or: [
+        { assignedToUser: req.user._id },
+        { assignedToUser: { $exists: false } },
+        { assignedToUser: null },
+      ],
+    };
+
+    if (req.user.teamId) {
+      filter.$or = [
+        { assignedToUser: req.user._id },
+        { assignedToUser: null, maintenanceTeam: req.user.teamId },
+        { assignedToUser: { $exists: false }, maintenanceTeam: req.user.teamId },
+      ];
+    } else {
+      filter.$or = [{ assignedToUser: req.user._id }];
+    }
+
+    const requests = await MaintenanceRequest.find(filter)
+      .populate('equipment')
+      .populate('maintenanceTeam')
+      .sort({ createdAt: -1 });
+
+    return res.json(requests);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+
+router.get('/technicians', requireAuth, async (req, res) => {
+  try {
+    if (req.user.role !== 'MANAGER') {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    const technicians = await User.find({ role: 'TECHNICIAN', active: true })
+      .select('_id name email teamId')
+      .sort({ name: 1 });
+
+    return res.json(technicians);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+
 router.get('/', async (req, res) => {
   try {
     const requests = await MaintenanceRequest.find()
@@ -53,6 +121,10 @@ router.post('/', async (req, res) => {
       return res.status(404).json({ message: 'Equipment not found' });
     }
 
+    if (equipment.isScrapped || equipment.status === 'Scrapped') {
+      return res.status(400).json({ message: 'Cannot create maintenance request for scrapped equipment' });
+    }
+
     // Validate: If requestType is Preventive, scheduledDate is required
     if (req.body.requestType === 'Preventive' && !req.body.scheduledDate) {
       return res.status(400).json({ message: 'Scheduled date is required for Preventive requests' });
@@ -79,7 +151,11 @@ router.post('/', async (req, res) => {
     };
 
     // Auto-fill default technician if available
-    if (equipment.defaultTechnician && equipment.defaultTechnician.email) {
+    if (
+      (!requestData.assignedTo || !requestData.assignedTo.email) &&
+      equipment.defaultTechnician &&
+      equipment.defaultTechnician.email
+    ) {
       requestData.assignedTo = {
         name: equipment.defaultTechnician.name || '',
         email: equipment.defaultTechnician.email || '',
@@ -113,6 +189,12 @@ router.patch('/:id/assign-self', requireAuth, async (req, res) => {
       return res.status(403).json({ message: 'Only managers or technicians can assign themselves' });
     }
 
+    if (request.assignedToUser || (request.assignedTo && request.assignedTo.email)) {
+      if (req.user.role === 'TECHNICIAN') {
+        return res.status(400).json({ message: 'Request is already assigned' });
+      }
+    }
+
     // For TECHNICIAN: validate they are in the same team
     if (req.user.role === 'TECHNICIAN') {
       if (!request.maintenanceTeam) {
@@ -138,6 +220,23 @@ router.patch('/:id/assign-self', requireAuth, async (req, res) => {
       email: req.user.email,
       avatar: ''
     };
+    request.assignedToUser = req.user._id;
+
+    if (req.user.role === 'TECHNICIAN') {
+      if (request.maintenanceTeam) {
+        const existingInProgress = await MaintenanceRequest.findOne({
+          maintenanceTeam: request.maintenanceTeam._id,
+          stage: 'In Progress',
+          _id: { $ne: request._id }
+        });
+        if (existingInProgress) {
+          return res.status(400).json({ message: 'This maintenance team already has an In Progress request' });
+        }
+      }
+      request.stage = 'In Progress';
+      request.status = 'In Progress';
+      request.startedAt = new Date();
+    }
 
     const updated = await request.save();
     const populated = await MaintenanceRequest.findById(updated._id)
@@ -228,7 +327,11 @@ router.patch('/:id/complete', requireAuth, async (req, res) => {
 
     // For TECHNICIAN: validate they are assigned and in same team
     if (req.user.role === 'TECHNICIAN') {
-      if (!request.assignedTo || request.assignedTo.email.toLowerCase() !== req.user.email.toLowerCase()) {
+      const assignedToUserId = request.assignedToUser ? request.assignedToUser.toString() : null;
+      if (assignedToUserId && assignedToUserId !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'You must be assigned to this request to complete it' });
+      }
+      if (!assignedToUserId && (!request.assignedTo || request.assignedTo.email.toLowerCase() !== req.user.email.toLowerCase())) {
         return res.status(403).json({ message: 'You must be assigned to this request to complete it' });
       }
 
@@ -283,10 +386,24 @@ router.put('/:id', async (req, res) => {
       }
     }
 
+    if (req.body.stage === 'In Progress') {
+      const current = await MaintenanceRequest.findById(req.params.id).select('maintenanceTeam');
+      if (current?.maintenanceTeam) {
+        const existingInProgress = await MaintenanceRequest.findOne({
+          maintenanceTeam: current.maintenanceTeam,
+          stage: 'In Progress',
+          _id: { $ne: req.params.id }
+        });
+        if (existingInProgress) {
+          return res.status(400).json({ message: 'This maintenance team already has an In Progress request' });
+        }
+      }
+    }
+
     if (req.body.stage === 'Scrap' && req.body.equipment) {
       await Equipment.findByIdAndUpdate(
         req.body.equipment,
-        { status: 'Scrapped', notes: 'Equipment scrapped due to maintenance request' }
+        { status: 'Scrapped', isScrapped: true, notes: 'Equipment scrapped due to maintenance request' }
       );
     }
 
@@ -331,6 +448,102 @@ router.delete('/:id', async (req, res) => {
     res.json({ message: 'Request deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+router.patch('/:id/assign-manager', requireAuth, async (req, res) => {
+  try {
+    if (req.user.role !== 'MANAGER') {
+      return res.status(403).json({ message: 'Only managers can assign technicians' });
+    }
+
+    const { technicianId } = req.body;
+    if (!technicianId) {
+      return res.status(400).json({ message: 'technicianId is required' });
+    }
+
+    const [request, technician] = await Promise.all([
+      MaintenanceRequest.findById(req.params.id).populate('maintenanceTeam'),
+      User.findById(technicianId),
+    ]);
+
+    if (!request) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+    if (!technician || technician.role !== 'TECHNICIAN') {
+      return res.status(404).json({ message: 'Technician not found' });
+    }
+
+    request.assignedTo = {
+      name: technician.name,
+      email: technician.email,
+      avatar: ''
+    };
+    request.assignedToUser = technician._id;
+
+    const updated = await request.save();
+    const populated = await MaintenanceRequest.findById(updated._id)
+      .populate('equipment')
+      .populate('maintenanceTeam');
+
+    return res.json(populated);
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+});
+
+router.patch('/:id/scrap', requireAuth, async (req, res) => {
+  try {
+    const { hoursSpent } = req.body;
+    if (!hoursSpent || hoursSpent <= 0) {
+      return res.status(400).json({ message: 'hoursSpent is required and must be greater than 0' });
+    }
+
+    const request = await MaintenanceRequest.findById(req.params.id);
+    if (!request) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+
+    if (req.user.role !== 'MANAGER' && req.user.role !== 'TECHNICIAN') {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    if (req.user.role === 'TECHNICIAN') {
+      const assignedToUserId = request.assignedToUser ? request.assignedToUser.toString() : null;
+      if (assignedToUserId && assignedToUserId !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'You can only scrap requests assigned to you' });
+      }
+      if (!assignedToUserId && request.assignedTo?.email?.toLowerCase() !== req.user.email?.toLowerCase()) {
+        return res.status(403).json({ message: 'You can only scrap requests assigned to you' });
+      }
+    }
+
+    request.stage = 'Scrap';
+    request.status = 'Scrap';
+    request.hoursSpent = hoursSpent;
+    request.duration = hoursSpent;
+    request.completedAt = new Date();
+    request.completedDate = new Date();
+
+    const updatedRequest = await request.save();
+
+    const note = `Equipment scrapped due to maintenance request ${updatedRequest._id.toString()}`;
+    const equipment = await Equipment.findById(updatedRequest.equipment);
+    if (equipment) {
+      const existing = equipment.notes ? equipment.notes.toString() : '';
+      equipment.isScrapped = true;
+      equipment.status = 'Scrapped';
+      equipment.notes = existing ? `${existing}\n${note}` : note;
+      await equipment.save();
+    }
+
+    const populated = await MaintenanceRequest.findById(updatedRequest._id)
+      .populate('equipment')
+      .populate('maintenanceTeam');
+
+    return res.json(populated);
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
   }
 });
 

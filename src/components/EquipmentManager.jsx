@@ -13,10 +13,14 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
   const [requestCount, setRequestCount] = useState(0);
   const [showRequestsModal, setShowRequestsModal] = useState(false);
   const [equipmentRequestCounts, setEquipmentRequestCounts] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterDepartment, setFilterDepartment] = useState('');
+  const [filterEmployee, setFilterEmployee] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     serialNumber: '',
     category: 'Machine',
+    customCategory: '',
     department: '',
     assignedTo: '',
     maintenanceTeam: '',
@@ -54,6 +58,10 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (!formData.defaultTechnician?.email) {
+        alert('Default technician email is required');
+        return;
+      }
       if (selectedEquipment) {
         await api.equipment.update(selectedEquipment._id, formData);
       } else {
@@ -74,6 +82,7 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
       name: '',
       serialNumber: '',
       category: 'Machine',
+      customCategory: '',
       department: '',
       assignedTo: '',
       maintenanceTeam: '',
@@ -127,6 +136,40 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
     'Scrapped': 'bg-red-100 text-red-800'
   };
 
+  const getUniqueDepartments = () => {
+    const depts = new Set();
+    equipment.forEach(eq => {
+      if (eq.department) depts.add(eq.department);
+    });
+    return Array.from(depts).sort();
+  };
+
+  const getUniqueEmployees = () => {
+    const employees = new Set();
+    equipment.forEach(eq => {
+      if (eq.assignedTo) employees.add(eq.assignedTo);
+    });
+    return Array.from(employees).sort();
+  };
+
+  const getFilteredEquipment = () => {
+    return equipment.filter(eq => {
+      const matchesSearch = !searchTerm ||
+        eq.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        eq.serialNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        eq.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        eq.assignedTo?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesDepartment = !filterDepartment ||
+        eq.department?.toLowerCase() === filterDepartment.toLowerCase();
+
+      const matchesEmployee = !filterEmployee ||
+        eq.assignedTo?.toLowerCase() === filterEmployee.toLowerCase();
+
+      return matchesSearch && matchesDepartment && matchesEmployee;
+    });
+  };
+
   return (
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between mb-6">
@@ -150,8 +193,55 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
         )}
       </div>
 
+      <div className="mb-6 bg-white p-4 rounded-lg border border-slate-200">
+        <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex-1 min-w-[200px]">
+            <input
+              type="text"
+              placeholder="Search equipment..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <select
+            value={filterDepartment}
+            onChange={(e) => setFilterDepartment(e.target.value)}
+            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">All Departments</option>
+            {getUniqueDepartments().map((dept) => (
+              <option key={dept} value={dept}>{dept}</option>
+            ))}
+          </select>
+          <select
+            value={filterEmployee}
+            onChange={(e) => setFilterEmployee(e.target.value)}
+            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">All Employees</option>
+            {getUniqueEmployees().map((emp) => (
+              <option key={emp} value={emp}>{emp}</option>
+            ))}
+          </select>
+          {(searchTerm || filterDepartment || filterEmployee) && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchTerm('');
+                setFilterDepartment('');
+                setFilterEmployee('');
+              }}
+              className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-auto">
-        {equipment.map((eq) => (
+        {getFilteredEquipment().map((eq) => (
           <div
             key={eq._id}
             className="bg-white rounded-xl shadow-md border border-slate-200 p-6 hover:shadow-lg transition-all duration-200"
@@ -174,7 +264,7 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
             <div className="space-y-2 mb-4">
               <div className="flex items-center gap-2 text-sm text-slate-600">
                 <Package size={16} />
-                <span>{eq.category}</span>
+                <span>{eq.category === 'Other' && eq.customCategory ? eq.customCategory : eq.category}</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-slate-600">
                 <MapPin size={16} />
@@ -275,7 +365,14 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
                   <label className="block text-sm font-semibold text-slate-700 mb-2">Category</label>
                   <select
                     value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    onChange={(e) => {
+                      const next = e.target.value;
+                      setFormData({
+                        ...formData,
+                        category: next,
+                        customCategory: next === 'Other' ? formData.customCategory : ''
+                      });
+                    }}
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="Machine">Machine</option>
@@ -285,6 +382,19 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
                     <option value="Other">Other</option>
                   </select>
                 </div>
+                {formData.category === 'Other' && (
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Other Category</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.customCategory}
+                      onChange={(e) => setFormData({ ...formData, customCategory: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter category"
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">Status</label>
                   <select
@@ -339,6 +449,36 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Default Technician Name</label>
+                  <input
+                    type="text"
+                    value={formData.defaultTechnician?.name || ''}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      defaultTechnician: { ...formData.defaultTechnician, name: e.target.value }
+                    })}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Technician name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Default Technician Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.defaultTechnician?.email || ''}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      defaultTechnician: { ...formData.defaultTechnician, email: e.target.value }
+                    })}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="tech@example.com"
+                  />
+                </div>
               </div>
 
               <div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import CalendarView from '../components/CalendarView';
+import { authStore } from '../utils/auth';
 
 export default function Calendar() {
   const [requests, setRequests] = useState([]);
@@ -15,8 +16,13 @@ export default function Calendar() {
   const loadData = async () => {
     try {
       setLoading(true);
+      const user = authStore.getUser();
+      const role = user?.role?.toUpperCase();
+      const requestsPromise = role === 'TECHNICIAN'
+        ? api.requests.getTechnician()
+        : api.requests.getAll();
       const [requestsData, equipmentData, teamsData] = await Promise.all([
-        api.requests.getAll(),
+        requestsPromise,
         api.equipment.getAll(),
         api.teams.getAll()
       ]);

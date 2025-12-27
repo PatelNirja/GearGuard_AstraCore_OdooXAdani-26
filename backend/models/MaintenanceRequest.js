@@ -21,6 +21,15 @@ const maintenanceRequestSchema = new mongoose.Schema({
     email: String,
     avatar: String
   },
+  additionalTechnician: {
+    name: String,
+    email: String,
+    avatar: String
+  },
+  assignedToUser: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
   requestType: {
     type: String,
     enum: ['Corrective', 'Preventive'],

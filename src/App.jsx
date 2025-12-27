@@ -15,6 +15,7 @@ import Calendar from './pages/Calendar';
 import Equipment from './pages/Equipment';
 import Teams from './pages/Teams';
 import Reports from './pages/Reports';
+import Profile from './pages/Profile';
 
 function App() {
   const { theme, toggle } = useTheme();
@@ -41,7 +42,15 @@ function App() {
           <Route path="/requests" element={<Requests />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/equipment" element={<Equipment />} />
-          <Route path="/reports" element={<Reports />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route 
+            path="/reports" 
+            element={
+              <RoleProtectedRoute allowedRoles={['TECHNICIAN', 'MANAGER']}>
+                <Reports />
+              </RoleProtectedRoute>
+            } 
+          />
           <Route 
             path="/teams" 
             element={

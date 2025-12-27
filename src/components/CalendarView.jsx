@@ -10,12 +10,12 @@ const CalendarView = ({ requests, equipment, teams, onUpdate }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
 
-  // Filter preventive requests based on user role
-  let preventiveRequests = requests.filter(req => req.requestType === 'Preventive');
-  
-  // For technicians, only show requests assigned to them
+  // Filter calendar requests based on user role
+  let calendarRequests = requests;
+
+  // For technicians, only show requests assigned to them (any type)
   if (userRole === 'TECHNICIAN') {
-    preventiveRequests = preventiveRequests.filter(req => 
+    calendarRequests = calendarRequests.filter(req =>
       req.assignedTo && req.assignedTo.email?.toLowerCase() === user?.email?.toLowerCase()
     );
   }
@@ -43,7 +43,7 @@ const CalendarView = ({ requests, equipment, teams, onUpdate }) => {
 
   const getRequestsForDate = (date) => {
     if (!date) return [];
-    return preventiveRequests.filter(req => {
+    return calendarRequests.filter(req => {
       const reqDate = new Date(req.scheduledDate);
       return reqDate.toDateString() === date.toDateString();
     });

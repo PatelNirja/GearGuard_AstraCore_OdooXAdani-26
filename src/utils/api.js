@@ -72,6 +72,9 @@ export const api = {
   },
   requests: {
     getAll: () => fetch(`${API_BASE_URL}/requests`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
+    getManager: () => fetch(`${API_BASE_URL}/requests/manager`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
+    getTechnician: () => fetch(`${API_BASE_URL}/requests/technician`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
+    getTechnicians: () => fetch(`${API_BASE_URL}/requests/technicians`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
     getCalendar: () => fetch(`${API_BASE_URL}/requests/calendar`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
     getById: (id) => fetch(`${API_BASE_URL}/requests/${id}`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
     create: (data) => fetch(`${API_BASE_URL}/requests`, {
@@ -83,6 +86,11 @@ export const api = {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify(data)
+    }).then(handleResponse),
+    assignManager: (id, technicianId) => fetch(`${API_BASE_URL}/requests/${id}/assign-manager`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ technicianId })
     }).then(handleResponse),
     assignSelf: (id) => fetch(`${API_BASE_URL}/requests/${id}/assign-self`, {
       method: 'PATCH',
@@ -97,9 +105,22 @@ export const api = {
       headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify({ hoursSpent })
     }).then(handleResponse),
+    scrap: (id, hoursSpent) => fetch(`${API_BASE_URL}/requests/${id}/scrap`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }
+      ,body: JSON.stringify({ hoursSpent })
+    }).then(handleResponse),
     delete: (id) => fetch(`${API_BASE_URL}/requests/${id}`, {
       method: 'DELETE',
       headers: { ...getAuthHeaders() }
     }).then(handleResponse)
+  }
+  ,users: {
+    me: () => fetch(`${API_BASE_URL}/users/me`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
+    updateMe: (data) => fetch(`${API_BASE_URL}/users/me`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify(data)
+    }).then(handleResponse),
   }
 };
