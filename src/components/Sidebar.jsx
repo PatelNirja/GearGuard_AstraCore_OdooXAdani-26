@@ -1,4 +1,4 @@
-import { Calendar, LayoutGrid, LogOut, Package, Users, Home, BarChart3 } from 'lucide-react';
+import { Calendar, LayoutGrid, LogOut, Package, Users, Home, BarChart3, User as UserIcon } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { authStore } from '../utils/auth';
 
@@ -13,6 +13,7 @@ const Sidebar = () => {
     { path: '/calendar', label: 'Calendar', icon: Calendar, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
     { path: '/equipment', label: 'Equipment', icon: Package, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
     { path: '/reports', label: 'Reports', icon: BarChart3, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
+    { path: '/profile', label: 'Profile', icon: UserIcon, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
     { path: '/teams', label: 'Teams', icon: Users, roles: ['TECHNICIAN', 'MANAGER'] }
   ];
 

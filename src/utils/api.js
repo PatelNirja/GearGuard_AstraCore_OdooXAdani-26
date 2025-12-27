@@ -115,4 +115,12 @@ export const api = {
       headers: { ...getAuthHeaders() }
     }).then(handleResponse)
   }
+  ,users: {
+    me: () => fetch(`${API_BASE_URL}/users/me`, { headers: { ...getAuthHeaders() } }).then(handleResponse),
+    updateMe: (data) => fetch(`${API_BASE_URL}/users/me`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify(data)
+    }).then(handleResponse),
+  }
 };
