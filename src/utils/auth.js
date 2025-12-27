@@ -27,11 +27,11 @@ export const authStore = {
 export const getDefaultAppPathForRole = (role) => {
   switch (role) {
     case 'MANAGER':
-      return '/app';
+      return '/dashboard';
     case 'TECHNICIAN':
-      return '/app';
+      return '/dashboard';
     case 'USER':
     default:
-      return '/app';
+      return '/dashboard';
   }
 };

@@ -1,15 +1,16 @@
-import { Calendar, LayoutGrid, LogOut, Package, Users } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Calendar, LayoutGrid, LogOut, Package, Users, Home } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { authStore } from '../utils/auth';
 
-const Sidebar = ({ activeView, setActiveView }) => {
+const Sidebar = () => {
   const navigate = useNavigate();
 
   const menuItems = [
-    { id: 'kanban', label: 'Kanban Board', icon: LayoutGrid },
-    { id: 'calendar', label: 'Calendar', icon: Calendar },
-    { id: 'equipment', label: 'Equipment', icon: Package },
-    { id: 'teams', label: 'Teams', icon: Users }
+    { path: '/dashboard', label: 'Dashboard', icon: Home },
+    { path: '/requests', label: 'Requests', icon: LayoutGrid },
+    { path: '/calendar', label: 'Calendar', icon: Calendar },
+    { path: '/equipment', label: 'Equipment', icon: Package },
+    { path: '/teams', label: 'Teams', icon: Users }
   ];
 
   const onLogout = () => {
@@ -23,20 +24,21 @@ const Sidebar = ({ activeView, setActiveView }) => {
         <nav className="space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeView === item.id;
             return (
-              <button
-                key={item.id}
-                onClick={() => setActiveView(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  isActive
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
-                    : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900'
-                }`}
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) =>
+                  `w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
+                      : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900'
+                  }`
+                }
               >
                 <Icon size={20} />
                 <span className="font-medium">{item.label}</span>
-              </button>
+              </NavLink>
             );
           })}
         </nav>

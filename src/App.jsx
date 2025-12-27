@@ -1,12 +1,18 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import LegacyApp from './LegacyApp';
 import { useTheme } from './hooks/useTheme';
 import PublicLayout from './layouts/PublicLayout';
+import DashboardLayout from './layouts/DashboardLayout';
+import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import Dashboard from './pages/Dashboard';
+import Requests from './pages/Requests';
+import Calendar from './pages/Calendar';
+import Equipment from './pages/Equipment';
+import Teams from './pages/Teams';
 
 function App() {
   const { theme, toggle } = useTheme();
@@ -22,7 +28,22 @@ function App() {
           <Route path="/auth/register" element={<Register />} />
         </Route>
 
-        <Route path="/app" element={<LegacyApp />} />
+        <Route
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/requests" element={<Requests />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/equipment" element={<Equipment />} />
+          <Route path="/teams" element={<Teams />} />
+        </Route>
+
+        {/* Backward compatibility redirect */}
+        <Route path="/app" element={<Navigate to="/dashboard" replace />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
