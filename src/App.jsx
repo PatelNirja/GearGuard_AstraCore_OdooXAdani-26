@@ -14,6 +14,7 @@ import Requests from './pages/Requests';
 import Calendar from './pages/Calendar';
 import Equipment from './pages/Equipment';
 import Teams from './pages/Teams';
+import Reports from './pages/Reports';
 
 function App() {
   const { theme, toggle } = useTheme();
@@ -40,6 +41,7 @@ function App() {
           <Route path="/requests" element={<Requests />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/equipment" element={<Equipment />} />
+          <Route path="/reports" element={<Reports />} />
           <Route 
             path="/teams" 
             element={

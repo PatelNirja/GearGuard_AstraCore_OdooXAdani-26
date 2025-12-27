@@ -138,6 +138,7 @@ const CalendarView = ({ requests, equipment, teams, onUpdate }) => {
         <RequestModal
           equipment={equipment}
           teams={teams}
+          initialScheduledDate={selectedDate ? selectedDate.toISOString().split('T')[0] : null}
           onClose={() => {
             setShowModal(false);
             setSelectedDate(null);

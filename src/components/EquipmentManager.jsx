@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Package, Wrench, MapPin, Calendar, Edit, Trash2, X } from 'lucide-react';
 import { api } from '../utils/api';
 import { authStore } from '../utils/auth';
@@ -12,6 +12,7 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
   const [equipmentRequests, setEquipmentRequests] = useState([]);
   const [requestCount, setRequestCount] = useState(0);
   const [showRequestsModal, setShowRequestsModal] = useState(false);
+  const [equipmentRequestCounts, setEquipmentRequestCounts] = useState({});
   const [formData, setFormData] = useState({
     name: '',
     serialNumber: '',
@@ -100,6 +101,26 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
     }
   };
 
+  useEffect(() => {
+    const loadRequestCounts = async () => {
+      const counts = {};
+      for (const eq of equipment) {
+        try {
+          const countData = await api.equipment.getRequestsCount(eq._id);
+          counts[eq._id] = countData.count;
+        } catch (error) {
+          console.error(`Error loading count for equipment ${eq._id}:`, error);
+          counts[eq._id] = 0;
+        }
+      }
+      setEquipmentRequestCounts(counts);
+    };
+
+    if (equipment.length > 0) {
+      loadRequestCounts();
+    }
+  }, [equipment]);
+
   const statusColors = {
     'Active': 'bg-green-100 text-green-800',
     'Under Maintenance': 'bg-yellow-100 text-yellow-800',
@@ -174,10 +195,15 @@ const EquipmentManager = ({ equipment, teams, onUpdate }) => {
 
             <button
               onClick={() => handleViewRequests(eq)}
-              className="w-full mb-3 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors font-medium"
+              className="w-full mb-3 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors font-medium relative"
             >
               <Wrench size={16} />
-              Maintenance Requests
+              Maintenance
+              {equipmentRequestCounts[eq._id] > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                  {equipmentRequestCounts[eq._id]}
+                </span>
+              )}
             </button>
 
             {canManage && (

@@ -72,15 +72,20 @@ const RequestCard = ({ request, onDragStart, onUpdate }) => {
     <div
       draggable={canDrag}
       onDragStart={canDrag ? () => onDragStart(request) : undefined}
-      className={`bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 border border-slate-200 ${
+      className={`bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 border-l-4 ${
+        isOverdue ? 'border-l-red-500' : 'border-l-transparent'
+      } border-r border-t border-b border-slate-200 ${
         canDrag ? 'cursor-move' : 'cursor-default'
       }`}
     >
+      {isOverdue && (
+        <div className="flex items-center gap-1 mb-2 text-red-600 text-xs font-semibold">
+          <AlertCircle size={14} />
+          <span>OVERDUE</span>
+        </div>
+      )}
       <div className="flex items-start justify-between mb-2">
         <h4 className="font-semibold text-slate-800 text-sm flex-1">{request.subject}</h4>
-        {isOverdue && (
-          <AlertCircle className="text-red-500 flex-shrink-0" size={16} />
-        )}
       </div>
 
       <p className="text-xs text-slate-600 mb-3 line-clamp-2">{request.description}</p>

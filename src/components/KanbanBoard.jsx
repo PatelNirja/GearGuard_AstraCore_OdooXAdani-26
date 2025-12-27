@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Clock, AlertCircle, User } from 'lucide-react';
+import { Plus, Clock, AlertCircle, User, Search, Filter } from 'lucide-react';
 import { api } from '../utils/api';
 import { authStore } from '../utils/auth';
 import RequestModal from './RequestModal';
@@ -22,6 +22,9 @@ const KanbanBoard = ({ requests, equipment, teams, onUpdate }) => {
   
   const [showModal, setShowModal] = useState(false);
   const [draggedRequest, setDraggedRequest] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterDepartment, setFilterDepartment] = useState('');
+  const [filterEmployee, setFilterEmployee] = useState('');
 
   const handleDragStart = (request) => {
     setDraggedRequest(request);
@@ -79,30 +82,121 @@ const KanbanBoard = ({ requests, equipment, teams, onUpdate }) => {
     setDraggedRequest(null);
   };
 
+  const getFilteredRequests = () => {
+    return requests.filter(req => {
+      const matchesSearch = !searchTerm || 
+        req.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        req.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        req.equipment?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesDepartment = !filterDepartment || 
+        req.equipment?.department?.toLowerCase() === filterDepartment.toLowerCase();
+      
+      const matchesEmployee = !filterEmployee || 
+        req.equipment?.assignedTo?.toLowerCase() === filterEmployee.toLowerCase();
+      
+      return matchesSearch && matchesDepartment && matchesEmployee;
+    });
+  };
+
   const getRequestsByStage = (stage) => {
-    return requests.filter(req => req.stage === stage);
+    const filtered = getFilteredRequests();
+    return filtered.filter(req => req.stage === stage);
+  };
+
+  const getUniqueDepartments = () => {
+    const depts = new Set();
+    requests.forEach(req => {
+      if (req.equipment?.department) {
+        depts.add(req.equipment.department);
+      }
+    });
+    return Array.from(depts).sort();
+  };
+
+  const getUniqueEmployees = () => {
+    const employees = new Set();
+    requests.forEach(req => {
+      if (req.equipment?.assignedTo) {
+        employees.add(req.equipment.assignedTo);
+      }
+    });
+    return Array.from(employees).sort();
   };
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800">Maintenance Kanban Board</h2>
-          <p className="text-slate-600 mt-1">
-            {canChangeStatus 
-              ? 'Drag and drop requests to update their status' 
-              : 'View maintenance requests'}
-          </p>
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-800">Maintenance Kanban Board</h2>
+            <p className="text-slate-600 mt-1">
+              {canChangeStatus 
+                ? 'Drag and drop requests to update their status' 
+                : 'View maintenance requests'}
+            </p>
+          </div>
+          {canCreateRequest && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
+            >
+              <Plus size={20} />
+              New Request
+            </button>
+          )}
         </div>
-        {canCreateRequest && (
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
-          >
-            <Plus size={20} />
-            New Request
-          </button>
-        )}
+        
+        <div className="flex flex-wrap gap-4 items-center bg-white p-4 rounded-lg border border-slate-200">
+          <div className="flex-1 min-w-[200px] relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
+            <input
+              type="text"
+              placeholder="Search requests..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Filter size={18} className="text-slate-600" />
+            <select
+              value={filterDepartment}
+              onChange={(e) => setFilterDepartment(e.target.value)}
+              className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">All Departments</option>
+              {getUniqueDepartments().map(dept => (
+                <option key={dept} value={dept}>{dept}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <User size={18} className="text-slate-600" />
+            <select
+              value={filterEmployee}
+              onChange={(e) => setFilterEmployee(e.target.value)}
+              className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">All Employees</option>
+              {getUniqueEmployees().map(emp => (
+                <option key={emp} value={emp}>{emp}</option>
+              ))}
+            </select>
+          </div>
+          {(searchTerm || filterDepartment || filterEmployee) && (
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setFilterDepartment('');
+                setFilterEmployee('');
+              }}
+              className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800"
+            >
+              Clear Filters
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-4 gap-6 flex-1 overflow-auto">

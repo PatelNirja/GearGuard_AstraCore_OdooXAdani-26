@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { api } from '../utils/api';
 import { authStore } from '../utils/auth';
 
-const RequestModal = ({ equipment, teams, editRequest, onClose, onUpdate }) => {
+const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onClose, onUpdate }) => {
   const user = authStore.getUser();
   const userRole = user?.role?.toUpperCase() || 'USER';
   const canCreatePreventive = userRole === 'MANAGER';
@@ -14,7 +14,7 @@ const RequestModal = ({ equipment, teams, editRequest, onClose, onUpdate }) => {
     equipment: '',
     requestType: 'Corrective',
     priority: 'Medium',
-    scheduledDate: new Date().toISOString().split('T')[0],
+    scheduledDate: initialScheduledDate || new Date().toISOString().split('T')[0],
     assignedTo: { name: '', email: '', avatar: '' },
     createdBy: 'Admin User',
     duration: 0
@@ -30,8 +30,14 @@ const RequestModal = ({ equipment, teams, editRequest, onClose, onUpdate }) => {
         scheduledDate: new Date(editRequest.scheduledDate).toISOString().split('T')[0]
       });
       setSelectedEquipment(editRequest.equipment);
+    } else if (initialScheduledDate) {
+      setFormData(prev => ({
+        ...prev,
+        scheduledDate: initialScheduledDate,
+        requestType: 'Preventive'
+      }));
     }
-  }, [editRequest]);
+  }, [editRequest, initialScheduledDate]);
 
   const handleEquipmentChange = (equipmentId) => {
     const selected = equipment.find(e => e._id === equipmentId);
