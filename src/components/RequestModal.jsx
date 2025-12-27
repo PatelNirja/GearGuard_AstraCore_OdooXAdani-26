@@ -6,15 +6,21 @@ import { authStore } from '../utils/auth';
 const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onClose, onUpdate }) => {
   const user = authStore.getUser();
   const userRole = user?.role?.toUpperCase() || 'USER';
-  const canCreatePreventive = userRole === 'MANAGER';
   const canAssignTechnician = userRole === 'MANAGER' || userRole === 'TECHNICIAN';
+  // Get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    return new Date().toISOString().split('T')[0];
+  };
+
   const [formData, setFormData] = useState({
     subject: '',
     description: '',
     equipment: '',
     requestType: 'Corrective',
     priority: 'Medium',
-    scheduledDate: initialScheduledDate || new Date().toISOString().split('T')[0],
+    scheduledDate: initialScheduledDate && initialScheduledDate >= getTodayDate() 
+      ? initialScheduledDate 
+      : getTodayDate(),
     assignedTo: { name: '', email: '', avatar: '' },
     createdBy: 'Admin User',
     duration: 0
@@ -31,9 +37,12 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
       });
       setSelectedEquipment(editRequest.equipment);
     } else if (initialScheduledDate) {
+      // Validate that initialScheduledDate is not in the past
+      const today = getTodayDate();
+      const validDate = initialScheduledDate >= today ? initialScheduledDate : today;
       setFormData(prev => ({
         ...prev,
-        scheduledDate: initialScheduledDate,
+        scheduledDate: validDate,
         requestType: 'Preventive'
       }));
     }
@@ -47,6 +56,22 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate: Scheduled date is required for Preventive requests
+    if (formData.requestType === 'Preventive' && !formData.scheduledDate) {
+      alert('Scheduled date is required for Preventive requests');
+      return;
+    }
+    
+    // Validate: Scheduled date cannot be in the past
+    if (formData.scheduledDate) {
+      const today = getTodayDate();
+      if (formData.scheduledDate < today) {
+        alert('Scheduled date cannot be in the past. Please select a future date.');
+        return;
+      }
+    }
+    
     try {
       const submitData = { ...formData };
       
@@ -68,7 +93,7 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
       onClose();
     } catch (error) {
       console.error('Error saving request:', error);
-      alert('Failed to save request');
+      alert(error.message || 'Failed to save request');
     }
   };
 
@@ -132,14 +157,10 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
                 value={formData.requestType}
                 onChange={(e) => setFormData({ ...formData, requestType: e.target.value })}
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                disabled={!canCreatePreventive && formData.requestType === 'Preventive'}
               >
                 <option value="Corrective">Corrective</option>
-                {canCreatePreventive && <option value="Preventive">Preventive</option>}
+                <option value="Preventive">Preventive</option>
               </select>
-              {!canCreatePreventive && (
-                <p className="text-xs text-slate-500 mt-1">Only managers can create preventive requests</p>
-              )}
             </div>
           </div>
 
@@ -166,7 +187,7 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className={`grid gap-4 ${formData.requestType === 'Preventive' ? 'grid-cols-2' : 'grid-cols-1'}`}>
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Priority</label>
               <select
@@ -181,16 +202,28 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Scheduled Date</label>
-              <input
-                type="date"
-                required
-                value={formData.scheduledDate}
-                onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
+            {formData.requestType === 'Preventive' && (
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Scheduled Date <span className="text-red-500">*</span></label>
+                <input
+                  type="date"
+                  required={formData.requestType === 'Preventive'}
+                  min={new Date().toISOString().split('T')[0]}
+                  value={formData.scheduledDate}
+                  onChange={(e) => {
+                    const selectedDate = e.target.value;
+                    const today = new Date().toISOString().split('T')[0];
+                    if (selectedDate < today) {
+                      alert('Scheduled date cannot be in the past. Please select a future date.');
+                      return;
+                    }
+                    setFormData({ ...formData, scheduledDate: selectedDate });
+                  }}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p className="text-xs text-slate-500 mt-1">Only future dates are allowed</p>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

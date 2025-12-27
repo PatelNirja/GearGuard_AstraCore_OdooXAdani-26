@@ -1,13 +1,27 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { authStore } from '../utils/auth';
 import RequestModal from './RequestModal';
 
 const CalendarView = ({ requests, equipment, teams, onUpdate }) => {
+  const user = authStore.getUser();
+  const userRole = user?.role?.toUpperCase() || 'USER';
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
 
-  const preventiveRequests = requests.filter(req => req.requestType === 'Preventive');
+  // Filter preventive requests based on user role
+  let preventiveRequests = requests.filter(req => req.requestType === 'Preventive');
+  
+  // For technicians, only show requests assigned to them
+  if (userRole === 'TECHNICIAN') {
+    preventiveRequests = preventiveRequests.filter(req => 
+      req.assignedTo && req.assignedTo.email?.toLowerCase() === user?.email?.toLowerCase()
+    );
+  }
+  
+  // Only managers and users can create requests by clicking dates
+  const canCreateOnDateClick = userRole === 'MANAGER' || userRole === 'USER';
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
@@ -44,8 +58,22 @@ const CalendarView = ({ requests, equipment, teams, onUpdate }) => {
   };
 
   const handleDateClick = (date) => {
-    setSelectedDate(date);
-    setShowModal(true);
+    // Only allow creating requests on date click for managers and users
+    if (canCreateOnDateClick) {
+      // Validate: Cannot select past dates
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selectedDate = new Date(date);
+      selectedDate.setHours(0, 0, 0, 0);
+      
+      if (selectedDate < today) {
+        alert('Cannot schedule tasks for past dates. Please select a future date.');
+        return;
+      }
+      
+      setSelectedDate(date);
+      setShowModal(true);
+    }
   };
 
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -95,12 +123,16 @@ const CalendarView = ({ requests, equipment, teams, onUpdate }) => {
             const dayRequests = day ? getRequestsForDate(day) : [];
             const isToday = day && day.toDateString() === new Date().toDateString();
 
+            // Check if date is in the past
+            const isPastDate = day && day < new Date(new Date().setHours(0, 0, 0, 0));
+            const canClickDate = day && canCreateOnDateClick && !isPastDate;
+
             return (
               <div
                 key={index}
-                onClick={() => day && handleDateClick(day)}
+                onClick={() => day && canClickDate && handleDateClick(day)}
                 className={`border-r border-b border-slate-200 p-3 min-h-[120px] ${
-                  day ? 'cursor-pointer hover:bg-slate-50' : 'bg-slate-50'
+                  day ? (canClickDate ? 'cursor-pointer hover:bg-slate-50' : isPastDate ? 'opacity-50 cursor-not-allowed' : 'cursor-default') : 'bg-slate-50'
                 } ${isToday ? 'bg-blue-50' : ''}`}
               >
                 {day && (

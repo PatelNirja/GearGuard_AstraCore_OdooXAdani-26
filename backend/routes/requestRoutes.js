@@ -53,6 +53,23 @@ router.post('/', async (req, res) => {
       return res.status(404).json({ message: 'Equipment not found' });
     }
 
+    // Validate: If requestType is Preventive, scheduledDate is required
+    if (req.body.requestType === 'Preventive' && !req.body.scheduledDate) {
+      return res.status(400).json({ message: 'Scheduled date is required for Preventive requests' });
+    }
+
+    // Validate: Scheduled date cannot be in the past
+    if (req.body.scheduledDate) {
+      const scheduledDate = new Date(req.body.scheduledDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      scheduledDate.setHours(0, 0, 0, 0);
+      
+      if (scheduledDate < today) {
+        return res.status(400).json({ message: 'Scheduled date cannot be in the past. Please select a future date.' });
+      }
+    }
+
     const requestData = {
       ...req.body,
       equipmentCategory: equipment.category,
@@ -254,6 +271,18 @@ router.patch('/:id/complete', requireAuth, async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
+    // Validate: Scheduled date cannot be in the past (only for new scheduled dates)
+    if (req.body.scheduledDate) {
+      const scheduledDate = new Date(req.body.scheduledDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      scheduledDate.setHours(0, 0, 0, 0);
+      
+      if (scheduledDate < today) {
+        return res.status(400).json({ message: 'Scheduled date cannot be in the past. Please select a future date.' });
+      }
+    }
+
     if (req.body.stage === 'Scrap' && req.body.equipment) {
       await Equipment.findByIdAndUpdate(
         req.body.equipment,
