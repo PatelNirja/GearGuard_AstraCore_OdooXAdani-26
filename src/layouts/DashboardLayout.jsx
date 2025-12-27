@@ -1,8 +1,28 @@
 import { Outlet } from 'react-router-dom';
 import { Wrench } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import { authStore } from '../utils/auth';
 
 export default function DashboardLayout() {
+  const user = authStore.getUser();
+  
+  const getUserName = () => {
+    return user?.name || 'User';
+  };
+
+  const getUserRole = () => {
+    if (!user?.role) return 'User';
+    
+    // Format role: MANAGER -> Manager, TECHNICIAN -> Technician, USER -> User
+    const role = user.role.toLowerCase();
+    return role.charAt(0).toUpperCase() + role.slice(1);
+  };
+
+  const getAvatarInitial = () => {
+    const name = getUserName();
+    return name.charAt(0).toUpperCase();
+  };
+
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950">
       <Sidebar />
@@ -19,10 +39,11 @@ export default function DashboardLayout() {
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <p className="text-sm text-slate-500 dark:text-slate-400">Welcome back</p>
-                <p className="font-semibold text-slate-700 dark:text-slate-200">Admin User</p>
+                <p className="font-semibold text-slate-700 dark:text-slate-200">{getUserName()}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{getUserRole()}</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold shadow-md">
-                A
+                {getAvatarInitial()}
               </div>
             </div>
           </div>
