@@ -234,10 +234,9 @@ Make the system **proactive instead of reactive**.
 Enforce **access control and workflow security**.
 
 ### Roles
-- Admin
+- User
 - Manager
 - Technician
-- Employee (Request Creator)
 
 ### Permissions
 - Create maintenance requests
@@ -263,11 +262,9 @@ Ensure **compliance, traceability, and transparency**.
 
 ## 🧠 Tech Stack
 
-- **Platform:** Odoo
-- **Backend:** Python (Odoo ORM)
-- **Frontend:** XML, QWeb, JS
-- **Database:** PostgreSQL
-- **Architecture:** Modular Odoo Apps
+- **Backend:** Node.js, Express.js
+- **Frontend:** React.js, JavaScript
+- **Database:** MongoDB(Local Database)
 
 ---
 
@@ -277,18 +274,9 @@ This project is developed for **Adani Hack Innovate 2026** under the **AstraCore
 
 ---
 
-## 📌 Future Enhancements
-
-- Predictive maintenance using ML
-- IoT sensor integration
-- Mobile technician app
-- Spare parts inventory linkage
-
----
-
 ## 👥 Team
 
-Built with ❤️ by **GearGuard Team**  
+Built with ❤️ by **AstraCore Team**  
 For innovation, reliability, and smarter maintenance.
 
 ---
