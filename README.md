@@ -35,10 +35,6 @@ High-level operational visibility for **Managers** and **Technicians**.
 **⏰ Today’s Scheduled Maintenance**
 - Quick overview of today’s tasks
 
-**🔔 Alerts**
-- Overdue requests
-- Scrapped equipment notifications
-
 ---
 
 ## 🛠️ 2. Equipment Management
@@ -213,22 +209,7 @@ Support **decision-making and optimization**.
 
 ---
 
-## 🔔 8. Notifications & Automation
-
-### Purpose
-Make the system **proactive instead of reactive**.
-
-### Features
-- Automatic Notifications for:
-  - New request assigned
-  - Overdue requests
-  - Upcoming preventive maintenance
-- Email & In-app Alerts
-- SLA breach warnings
-
----
-
-## 🔐 9. User & Role Management
+## 🔐 8. User & Role Management
 
 ### Purpose
 Enforce **access control and workflow security**.
@@ -246,7 +227,7 @@ Enforce **access control and workflow security**.
 
 ---
 
-## 🗑️ 10. Scrap & Audit Log
+## 🗑️ 9. Scrap & Audit Log
 
 ### Purpose
 Ensure **compliance, traceability, and transparency**.
