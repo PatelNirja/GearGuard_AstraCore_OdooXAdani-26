@@ -1,5 +1,7 @@
-import { Clock, AlertCircle, User, Calendar } from 'lucide-react';
+import { useState } from 'react';
+import { Clock, AlertCircle, User, Calendar, Play, CheckCircle } from 'lucide-react';
 import { authStore } from '../utils/auth';
+import { api } from '../utils/api';
 
 const priorityColors = {
   'Low': 'bg-slate-100 text-slate-700',
@@ -12,7 +14,59 @@ const RequestCard = ({ request, onDragStart, onUpdate }) => {
   const user = authStore.getUser();
   const userRole = user?.role?.toUpperCase() || 'USER';
   const canDrag = userRole === 'TECHNICIAN' || userRole === 'MANAGER';
+  const canAssign = (userRole === 'TECHNICIAN' || userRole === 'MANAGER') && request.stage === 'New';
+  const canStart = (userRole === 'TECHNICIAN' || userRole === 'MANAGER') && 
+                   request.stage === 'New' && 
+                   request.assignedTo?.email?.toLowerCase() === user?.email?.toLowerCase();
+  const canComplete = (userRole === 'TECHNICIAN' || userRole === 'MANAGER') && 
+                      request.stage === 'In Progress' &&
+                      request.assignedTo?.email?.toLowerCase() === user?.email?.toLowerCase();
   const isOverdue = new Date(request.scheduledDate) < new Date() && request.stage !== 'Repaired' && request.stage !== 'Scrap';
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [hoursSpent, setHoursSpent] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const handleAssignSelf = async () => {
+    try {
+      setLoading(true);
+      await api.requests.assignSelf(request._id);
+      onUpdate();
+    } catch (error) {
+      alert(error.message || 'Failed to assign request');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStart = async () => {
+    try {
+      setLoading(true);
+      await api.requests.start(request._id);
+      onUpdate();
+    } catch (error) {
+      alert(error.message || 'Failed to start work');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleComplete = async () => {
+    if (!hoursSpent || hoursSpent <= 0) {
+      alert('Please enter hours spent');
+      return;
+    }
+    try {
+      setLoading(true);
+      await api.requests.complete(request._id, hoursSpent);
+      setShowCompleteModal(false);
+      setHoursSpent(0);
+      onUpdate();
+    } catch (error) {
+      alert(error.message || 'Failed to complete request');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -69,6 +123,82 @@ const RequestCard = ({ request, onDragStart, onUpdate }) => {
           </span>
         )}
       </div>
+
+      {/* Action Buttons */}
+      <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+        {canAssign && !request.assignedTo && (
+          <button
+            onClick={handleAssignSelf}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-xs font-medium disabled:opacity-50"
+          >
+            <User size={14} />
+            Assign to Me
+          </button>
+        )}
+        {canStart && (
+          <button
+            onClick={handleStart}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-xs font-medium disabled:opacity-50"
+          >
+            <Play size={14} />
+            Start Work
+          </button>
+        )}
+        {canComplete && (
+          <button
+            onClick={() => setShowCompleteModal(true)}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-xs font-medium disabled:opacity-50"
+          >
+            <CheckCircle size={14} />
+            Mark Repaired
+          </button>
+        )}
+      </div>
+
+      {/* Complete Modal */}
+      {showCompleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4">Complete Request</h3>
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Hours Spent <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                min="0.1"
+                step="0.1"
+                value={hoursSpent}
+                onChange={(e) => setHoursSpent(parseFloat(e.target.value) || 0)}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Enter hours spent"
+                autoFocus
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleComplete}
+                disabled={loading || !hoursSpent || hoursSpent <= 0}
+                className="flex-1 bg-purple-500 text-white py-2 rounded-lg hover:bg-purple-600 transition-colors font-medium disabled:opacity-50"
+              >
+                {loading ? 'Completing...' : 'Complete'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowCompleteModal(false);
+                  setHoursSpent(0);
+                }}
+                className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

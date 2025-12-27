@@ -138,10 +138,25 @@ const RequestModal = ({ equipment, teams, editRequest, onClose, onUpdate }) => {
           </div>
 
           {selectedEquipment && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm font-semibold text-blue-900 mb-1">Auto-filled Information</p>
-              <p className="text-sm text-blue-700">Category: {selectedEquipment.category}</p>
-              <p className="text-sm text-blue-700">Team: {selectedEquipment.maintenanceTeam?.name || 'N/A'}</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Category (Auto-filled)</label>
+                <input
+                  type="text"
+                  value={selectedEquipment.category || ''}
+                  readOnly
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-slate-100 text-slate-600 cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Maintenance Team (Auto-filled)</label>
+                <input
+                  type="text"
+                  value={selectedEquipment.maintenanceTeam?.name || 'N/A'}
+                  readOnly
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-slate-100 text-slate-600 cursor-not-allowed"
+                />
+              </div>
             </div>
           )}
 

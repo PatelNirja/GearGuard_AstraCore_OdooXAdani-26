@@ -84,6 +84,19 @@ export const api = {
       headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify(data)
     }).then(handleResponse),
+    assignSelf: (id) => fetch(`${API_BASE_URL}/requests/${id}/assign-self`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }
+    }).then(handleResponse),
+    start: (id) => fetch(`${API_BASE_URL}/requests/${id}/start`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }
+    }).then(handleResponse),
+    complete: (id, hoursSpent) => fetch(`${API_BASE_URL}/requests/${id}/complete`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ hoursSpent })
+    }).then(handleResponse),
     delete: (id) => fetch(`${API_BASE_URL}/requests/${id}`, {
       method: 'DELETE',
       headers: { ...getAuthHeaders() }

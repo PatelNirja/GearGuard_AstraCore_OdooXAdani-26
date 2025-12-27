@@ -31,6 +31,11 @@ const maintenanceRequestSchema = new mongoose.Schema({
     enum: ['New', 'In Progress', 'Repaired', 'Scrap'],
     default: 'New'
   },
+  status: {
+    type: String,
+    enum: ['New', 'In Progress', 'Repaired', 'Scrap'],
+    default: 'New'
+  },
   priority: {
     type: String,
     enum: ['Low', 'Medium', 'High', 'Critical'],
@@ -41,7 +46,13 @@ const maintenanceRequestSchema = new mongoose.Schema({
     required: true
   },
   completedDate: Date,
+  completedAt: Date,
+  startedAt: Date,
   duration: {
+    type: Number,
+    default: 0
+  },
+  hoursSpent: {
     type: Number,
     default: 0
   },
@@ -62,6 +73,20 @@ const maintenanceRequestSchema = new mongoose.Schema({
 
 maintenanceRequestSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
+  // Keep status and stage in sync
+  if (this.isModified('stage') && !this.isModified('status')) {
+    this.status = this.stage;
+  }
+  if (this.isModified('status') && !this.isModified('stage')) {
+    this.stage = this.status;
+  }
+  // Keep completedDate and completedAt in sync
+  if (this.isModified('completedDate') && !this.isModified('completedAt')) {
+    this.completedAt = this.completedDate;
+  }
+  if (this.isModified('completedAt') && !this.isModified('completedDate')) {
+    this.completedDate = this.completedAt;
+  }
   next();
 });
 
