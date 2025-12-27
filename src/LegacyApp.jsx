@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Wrench } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import EquipmentManager from './components/EquipmentManager';
 import TeamManager from './components/TeamManager';
 import KanbanBoard from './components/KanbanBoard';
 import CalendarView from './components/CalendarView';
 import { api } from './utils/api';
+import Logo from './assets/Logo.png';
 
 function LegacyApp() {
   const [activeView, setActiveView] = useState('kanban');
@@ -67,7 +67,9 @@ function LegacyApp() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
-                <Wrench className="text-blue-600" size={32} />
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl  text-white shadow-soft">
+                  <img src={Logo} alt="GearGuard" className="h-7 w-7 object-contain" />
+                </span>
                 GearGuard
               </h1>
               <p className="text-slate-600 dark:text-slate-300 mt-1">Ultimate Maintenance Tracker</p>

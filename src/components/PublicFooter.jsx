@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Wrench } from 'lucide-react';
+import Logo from '../assets/Logo.png';
 
 export default function PublicFooter() {
   return (
@@ -8,8 +8,8 @@ export default function PublicFooter() {
         <div className="grid gap-10 md:grid-cols-3">
           <div>
             <div className="flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 text-white shadow-soft">
-                <Wrench size={18} />
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl  text-white shadow-soft">
+                <img src={Logo} alt="GearGuard" className="h-7 w-7 object-contain" />
               </span>
               <span>GearGuard</span>
             </div>

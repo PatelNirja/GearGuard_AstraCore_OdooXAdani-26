@@ -1,5 +1,6 @@
 import React from 'react';
-import { Wrench, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import Logo from '../assets/Logo.png';
 
 const Footer = () => {
     return (
@@ -9,7 +10,9 @@ const Footer = () => {
                     {/* Brand */}
                     <div className="col-span-1 md:col-span-1">
                         <div className="flex items-center gap-2 text-white font-bold text-2xl mb-4">
-                            <Wrench className="text-blue-500" />
+                            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl  text-white shadow-soft">
+                                <img src={Logo} alt="GearGuard" className="h-7 w-7 object-contain" />
+                            </span>
                             <span>GearGuard</span>
                         </div>
                         <p className="text-slate-400 text-sm leading-relaxed">

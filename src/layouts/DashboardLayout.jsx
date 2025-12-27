@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
-import { Wrench } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import { authStore } from '../utils/auth';
+import Logo from '../assets/Logo.png';
 
 export default function DashboardLayout() {
   const user = authStore.getUser();
@@ -31,7 +31,9 @@ export default function DashboardLayout() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
-                <Wrench className="text-blue-600" size={28} />
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl  text-white shadow-soft">
+                  <img src={Logo} alt="GearGuard" className="h-7 w-7 object-contain" />
+                </span>
                 GearGuard
               </h1>
               <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Ultimate Maintenance Tracker</p>
