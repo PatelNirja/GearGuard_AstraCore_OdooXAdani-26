@@ -8,12 +8,13 @@ import CalendarView from './components/CalendarView';
 import ReportsView from './components/ReportsView';
 import Login from './components/Login';
 import Register from './components/Register';
+import LandingPage from './components/LandingPage';
 import { useAuth } from './context/AuthContext';
 import { api } from './utils/api';
 
 function App() {
   const { user, loading: authLoading, logout, isAuthenticated } = useAuth();
-  const [showRegister, setShowRegister] = useState(false);
+  const [showRegister, setShowRegister] = useState(null); // null = landing page, 'login' = login, 'register' = register
   const [activeView, setActiveView] = useState('kanban');
   const [teams, setTeams] = useState([]);
   const [equipment, setEquipment] = useState([]);
@@ -57,10 +58,15 @@ function App() {
   }
 
   if (!isAuthenticated) {
-    return showRegister ? (
-      <Register onSwitchToLogin={() => setShowRegister(false)} />
+    // Show landing page first, then login/register when user clicks "Get Started"
+    if (showRegister === null) {
+      return <LandingPage onGetStarted={() => setShowRegister('login')} />;
+    }
+    
+    return showRegister === 'register' ? (
+      <Register onSwitchToLogin={() => setShowRegister('login')} />
     ) : (
-      <Login onSwitchToRegister={() => setShowRegister(true)} />
+      <Login onSwitchToRegister={() => setShowRegister('register')} />
     );
   }
 
