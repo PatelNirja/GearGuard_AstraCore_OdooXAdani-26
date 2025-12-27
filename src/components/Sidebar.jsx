@@ -12,7 +12,7 @@ const Sidebar = () => {
     { path: '/requests', label: 'Requests', icon: LayoutGrid, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
     { path: '/calendar', label: 'Calendar', icon: Calendar, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
     { path: '/equipment', label: 'Equipment', icon: Package, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
-    { path: '/reports', label: 'Reports', icon: BarChart3, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
+    { path: '/reports', label: 'Reports', icon: BarChart3, roles: ['TECHNICIAN', 'MANAGER'] },
     { path: '/profile', label: 'Profile', icon: UserIcon, roles: ['USER', 'TECHNICIAN', 'MANAGER'] },
     { path: '/teams', label: 'Teams', icon: Users, roles: ['TECHNICIAN', 'MANAGER'] }
   ];

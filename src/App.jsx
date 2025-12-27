@@ -43,7 +43,14 @@ function App() {
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/equipment" element={<Equipment />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/reports" element={<Reports />} />
+          <Route 
+            path="/reports" 
+            element={
+              <RoleProtectedRoute allowedRoles={['TECHNICIAN', 'MANAGER']}>
+                <Reports />
+              </RoleProtectedRoute>
+            } 
+          />
           <Route 
             path="/teams" 
             element={
