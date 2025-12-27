@@ -121,7 +121,7 @@ export default function Contact() {
           <div className="mt-4 space-y-3 text-slate-600 dark:text-slate-300">
             <div>
               <div className="text-sm font-medium text-slate-700 dark:text-slate-200">Email</div>
-              <div>support@mainteno.app</div>
+              <div>support@gearguard.app</div>
             </div>
             <div>
               <div className="text-sm font-medium text-slate-700 dark:text-slate-200">Phone</div>
@@ -135,7 +135,7 @@ export default function Contact() {
 
           <div className="mt-6 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
             <iframe
-              title="Mainteno Map"
+              title="GearGuard Map"
               className="w-full h-56"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"

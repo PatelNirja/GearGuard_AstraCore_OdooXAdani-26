@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Wrench } from 'lucide-react';
 
 export default function PublicFooter() {
   return (
@@ -8,9 +9,9 @@ export default function PublicFooter() {
           <div>
             <div className="flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 text-white shadow-soft">
-                🛠
+                <Wrench size={18} />
               </span>
-              <span>Mainteno</span>
+              <span>GearGuard</span>
             </div>
             <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">Smart maintenance made simple.</p>
           </div>
@@ -56,7 +57,7 @@ export default function PublicFooter() {
         </div>
 
         <div className="mt-10 border-t border-slate-200 dark:border-slate-800 pt-6 text-sm text-slate-500 dark:text-slate-400">
-          © 2025 Mainteno. All rights reserved.
+          © 2025 GearGuard. All rights reserved.
         </div>
       </div>
     </footer>

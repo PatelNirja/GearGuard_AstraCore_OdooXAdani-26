@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, Moon, Sun, X } from 'lucide-react';
+import { Menu, Moon, Sun, X, Wrench } from 'lucide-react';
 
 const NavItem = ({ to, children, onClick }) => {
   return (
@@ -57,9 +57,9 @@ export default function PublicNavbar({ theme, onToggleTheme }) {
             <div className="flex items-center gap-3">
               <Link to="/" className="flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 text-white shadow-soft">
-                  🛠
+                  <Wrench size={18} />
                 </span>
-                <span>Mainteno</span>
+                <span>GearGuard</span>
               </Link>
             </div>
 

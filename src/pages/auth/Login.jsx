@@ -40,7 +40,7 @@ export default function Login() {
   };
 
   return (
-    <div className="mx-auto max-w-md">
+    <div className="mx-auto max-w-md py-10">
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/40 backdrop-blur shadow-soft p-8">
         <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Login</h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Sign in to continue.</p>
