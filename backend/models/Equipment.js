@@ -15,6 +15,9 @@ const equipmentSchema = new mongoose.Schema({
     required: true,
     enum: ['Machine', 'Vehicle', 'Computer', 'Tool', 'Other']
   },
+  customCategory: {
+    type: String
+  },
   department: {
     type: String,
     required: true
@@ -45,6 +48,10 @@ const equipmentSchema = new mongoose.Schema({
     type: String,
     enum: ['Active', 'Under Maintenance', 'Scrapped'],
     default: 'Active'
+  },
+  isScrapped: {
+    type: Boolean,
+    default: false
   },
   notes: String,
   createdAt: {

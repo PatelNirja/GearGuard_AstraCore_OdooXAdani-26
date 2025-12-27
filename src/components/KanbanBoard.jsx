@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Clock, AlertCircle, User, Search, Filter } from 'lucide-react';
+import { Plus, Clock, AlertCircle, User, Search, Filter, X } from 'lucide-react';
 import { api } from '../utils/api';
 import { authStore } from '../utils/auth';
 import RequestModal from './RequestModal';
@@ -14,7 +14,7 @@ const stageColors = {
   'Scrap': 'bg-red-50 border-red-200'
 };
 
-const KanbanBoard = ({ requests, equipment, teams, onUpdate }) => {
+const KanbanBoard = ({ requests, equipment, teams, technicians = [], onUpdate }) => {
   const user = authStore.getUser();
   const userRole = user?.role?.toUpperCase() || 'USER';
   const canCreateRequest = userRole === 'USER' || userRole === 'MANAGER';
@@ -25,6 +25,9 @@ const KanbanBoard = ({ requests, equipment, teams, onUpdate }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('');
   const [filterEmployee, setFilterEmployee] = useState('');
+  const [showHoursModal, setShowHoursModal] = useState(false);
+  const [hoursStage, setHoursStage] = useState(null);
+  const [hoursValue, setHoursValue] = useState('');
 
   const handleDragStart = (request) => {
     setDraggedRequest(request);
@@ -56,13 +59,14 @@ const KanbanBoard = ({ requests, equipment, teams, onUpdate }) => {
     }
 
     try {
+      if (stage === 'Repaired' || stage === 'Scrap') {
+        setHoursStage(stage);
+        setHoursValue('');
+        setShowHoursModal(true);
+        return;
+      }
+
       const updateData = { stage };
-      if (stage === 'Repaired') {
-        updateData.completedDate = new Date().toISOString();
-      }
-      if (stage === 'Scrap') {
-        updateData.equipment = draggedRequest.equipment._id;
-      }
       
       // Auto-assign technician when they move request to "In Progress" (technicians can assign themselves)
       if (userRole === 'TECHNICIAN' && stage === 'In Progress') {
@@ -222,6 +226,7 @@ const KanbanBoard = ({ requests, equipment, teams, onUpdate }) => {
                   <RequestCard
                     key={request._id}
                     request={request}
+                    technicians={technicians}
                     onDragStart={handleDragStart}
                     onUpdate={onUpdate}
                   />
@@ -244,6 +249,84 @@ const KanbanBoard = ({ requests, equipment, teams, onUpdate }) => {
           onClose={() => setShowModal(false)}
           onUpdate={onUpdate}
         />
+      )}
+
+      {showHoursModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-slate-800">Enter Hours Spent</h3>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowHoursModal(false);
+                  setHoursStage(null);
+                  setHoursValue('');
+                  setDraggedRequest(null);
+                }}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">Hours Spent</label>
+              <input
+                type="number"
+                min="0"
+                step="0.5"
+                value={hoursValue}
+                onChange={(e) => setHoursValue(e.target.value)}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <div className="flex gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const hoursSpent = parseFloat(hoursValue);
+                    if (!hoursSpent || hoursSpent <= 0) {
+                      alert('hoursSpent is required');
+                      return;
+                    }
+                    try {
+                      if (!draggedRequest || !hoursStage) {
+                        setShowHoursModal(false);
+                        return;
+                      }
+                      if (hoursStage === 'Repaired') {
+                        await api.requests.complete(draggedRequest._id, hoursSpent);
+                      } else {
+                        await api.requests.scrap(draggedRequest._id, hoursSpent);
+                      }
+                      setShowHoursModal(false);
+                      setHoursStage(null);
+                      setHoursValue('');
+                      setDraggedRequest(null);
+                      onUpdate();
+                    } catch (error) {
+                      alert(error.message || 'Failed to update request');
+                    }
+                  }}
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 rounded-lg hover:shadow-lg transition-all duration-200 font-semibold"
+                >
+                  Confirm
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowHoursModal(false);
+                    setHoursStage(null);
+                    setHoursValue('');
+                    setDraggedRequest(null);
+                  }}
+                  className="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200 font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

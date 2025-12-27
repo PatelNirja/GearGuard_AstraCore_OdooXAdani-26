@@ -22,6 +22,7 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
       ? initialScheduledDate 
       : getTodayDate(),
     assignedTo: { name: '', email: '', avatar: '' },
+    additionalTechnician: { name: '', email: '', avatar: '' },
     createdBy: 'Admin User',
     duration: 0
   });
@@ -51,7 +52,14 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
   const handleEquipmentChange = (equipmentId) => {
     const selected = equipment.find(e => e._id === equipmentId);
     setSelectedEquipment(selected);
-    setFormData({ ...formData, equipment: equipmentId });
+    const nextAssignedTo = selected?.defaultTechnician?.email
+      ? {
+          name: selected.defaultTechnician.name || '',
+          email: selected.defaultTechnician.email || '',
+          avatar: ''
+        }
+      : formData.assignedTo;
+    setFormData({ ...formData, equipment: equipmentId, assignedTo: nextAssignedTo });
   };
 
   const handleSubmit = async (e) => {
@@ -251,6 +259,26 @@ const RequestModal = ({ equipment, teams, editRequest, initialScheduledDate, onC
                 <p className="text-xs text-slate-500 mt-1">You will be auto-assigned to this request</p>
               )}
             </div>
+
+            {userRole === 'MANAGER' && (
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Additional Technician (Optional)</label>
+                <input
+                  type="text"
+                  value={formData.additionalTechnician.name}
+                  onChange={(e) => setFormData({ ...formData, additionalTechnician: { ...formData.additionalTechnician, name: e.target.value } })}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Technician name"
+                />
+                <input
+                  type="email"
+                  value={formData.additionalTechnician.email}
+                  onChange={(e) => setFormData({ ...formData, additionalTechnician: { ...formData.additionalTechnician, email: e.target.value } })}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+                  placeholder="tech@example.com"
+                />
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Duration (hours)</label>
