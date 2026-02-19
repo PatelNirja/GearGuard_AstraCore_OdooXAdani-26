@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://gearguard-backend-5fil.onrender.com';
+const API_BASE_URL = 'https://gearguard-backend-5fil.onrender.com/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('mainteno_token');
