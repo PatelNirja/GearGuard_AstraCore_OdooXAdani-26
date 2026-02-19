@@ -34,7 +34,7 @@ function App() {
         <Route
           element={
             <ProtectedRoute>
-              <DashboardLayout />
+              <DashboardLayout theme={theme} onToggleTheme={toggle} />
             </ProtectedRoute>
           }
         >
