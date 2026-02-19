@@ -35,10 +35,6 @@ High-level operational visibility for **Managers** and **Technicians**.
 **⏰ Today’s Scheduled Maintenance**
 - Quick overview of today’s tasks
 
-**🔔 Alerts**
-- Overdue requests
-- Scrapped equipment notifications
-
 ---
 
 ## 🛠️ 2. Equipment Management
@@ -213,31 +209,15 @@ Support **decision-making and optimization**.
 
 ---
 
-## 🔔 8. Notifications & Automation
-
-### Purpose
-Make the system **proactive instead of reactive**.
-
-### Features
-- Automatic Notifications for:
-  - New request assigned
-  - Overdue requests
-  - Upcoming preventive maintenance
-- Email & In-app Alerts
-- SLA breach warnings
-
----
-
-## 🔐 9. User & Role Management
+## 🔐 8. User & Role Management
 
 ### Purpose
 Enforce **access control and workflow security**.
 
 ### Roles
-- Admin
+- User
 - Manager
 - Technician
-- Employee (Request Creator)
 
 ### Permissions
 - Create maintenance requests
@@ -247,7 +227,7 @@ Enforce **access control and workflow security**.
 
 ---
 
-## 🗑️ 10. Scrap & Audit Log
+## 🗑️ 9. Scrap & Audit Log
 
 ### Purpose
 Ensure **compliance, traceability, and transparency**.
@@ -263,11 +243,9 @@ Ensure **compliance, traceability, and transparency**.
 
 ## 🧠 Tech Stack
 
-- **Platform:** Odoo
-- **Backend:** Python (Odoo ORM)
-- **Frontend:** XML, QWeb, JS
-- **Database:** PostgreSQL
-- **Architecture:** Modular Odoo Apps
+- **Backend:** Node.js, Express.js
+- **Frontend:** React.js, JavaScript
+- **Database:** MongoDB(Local Database)
 
 ---
 
@@ -277,18 +255,9 @@ This project is developed for **Adani Hack Innovate 2026** under the **AstraCore
 
 ---
 
-## 📌 Future Enhancements
-
-- Predictive maintenance using ML
-- IoT sensor integration
-- Mobile technician app
-- Spare parts inventory linkage
-
----
-
 ## 👥 Team
 
-Built with ❤️ by **GearGuard Team**  
+Built with ❤️ by **AstraCore Team**  
 For innovation, reliability, and smarter maintenance.
 
 ---
